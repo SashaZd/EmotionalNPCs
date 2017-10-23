@@ -3,7 +3,7 @@ class Organization(object):
 	"""docstring for Organization
 	"""
 
-	def __init__(self, name=None):
+	def __init__(self, name,type):
 		super(Organization, self).__init__()
 		# self.arg = arg
 
@@ -12,18 +12,33 @@ class Organization(object):
 		else:
 			self.assign_name()
 
+		self.type = type
+		self.current_member = []
+		self.past_member = []
+
+		if self.type == "gradschool":
+			self.days_of_meet = [1,2,3,4,5,6,7]
+		else:
+			self.days_of_meet = [1,2,3,4,5]
+
+		if self.type == "work":
+			self.employee = []
+			"""
+			TODO: leave and join?
+			"""
+
 
 	def __str__(self):
 		return self.name
 
+	def assign_name(self,newname):
+		self.name = newname
 
-	def assign_name(self):
-		self.name = "Unknown"
+	def add_member(self,person):
+		self.current_member.append(person)
 
 
-	def doSomething(self):
-		self.dosomething = "Nothing"
-		print self.dosomething
-		print "another222222"
+	""" TODO: add members to past_member when they leave"""
+
 
 		
