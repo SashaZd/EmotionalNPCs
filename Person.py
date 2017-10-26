@@ -14,7 +14,7 @@ class Person(object):
 		self.mother = birth 
 		self.father = birth 
 		self.age = 0		# increments every year 
-		self.birthday = birth
+		self.birthday = birth 		# Need to add the birth month/day to the world sim to increment age
 		self.last_name = None
 		self.first_name = None
 
@@ -154,11 +154,17 @@ class Person(object):
 
 	# Testing
 	def __str__(self):
-		return self.name
+		return "%s"%(self.name)
 		# person = """\n id: %s,\n age: %s,\n gender: %s,\n name: %s,\n mother: %s,\n father: %s
 		# 	"""%(self.id, self.age, self.gender, self.name, self.mother, self.father)
 		# return person
 
+
+	def __repr__(self):
+		return "%s"%(self.name)
+
+	def __unicode__(self):
+		return "%s"%(self.name)
 
 
 
