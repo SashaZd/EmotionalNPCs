@@ -6,6 +6,7 @@ from collections import defaultdict
 import itertools
 
 from Person import Person
+from Organization import School
 
 
 
@@ -23,6 +24,7 @@ class World(object):		# the sim will run for 50 years by default
 
 		# Time 
 		self.until_year=until_year
+		self.set_locations()
 		self.settler_babies()
 
 
@@ -101,6 +103,26 @@ class World(object):		# the sim will run for 50 years by default
 
 		baby = Person(birthday)
 		self.birthdays = [birthday[0],birthday[1],baby]
+
+
+	def set_locations(self):
+		self.locations = defaultdict(dict)
+		self.make_schools()
+
+
+	def make_schools(self):
+		"""Create Schools in the world
+		For every location in the world, add to the default schools at the location
+		"""
+		num_schools = random.choice(range(len(LOCATIONS), NUM_SCHOOLS_PER_LOCATION*len(LOCATIONS)))
+		school_names = random.sample(SCHOOL_NAMES, num_schools)
+		
+		for each in range(num_schools): 
+			school = School(school_names.pop())
+			if 'school' in self.locations[school.location]:
+				self.locations[school.location]['school'].append(school)
+			else:
+				self.locations[school.location]['school'] = [school]
 
 
 	# Sample with replacement

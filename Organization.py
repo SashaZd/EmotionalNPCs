@@ -1,4 +1,5 @@
 from configs import *
+import random
 
 
 class Organization(object):
@@ -45,14 +46,16 @@ class Organization(object):
 	""" TODO: add members to past_member when they leave"""
 
 
-	class School(Organization):
-		"""Local schools
-		Currently there's only 2 schools, can change that in the world later. 
-		Allows for simulation of people interacting growing up. 
-		"""
+class School(Organization):
+	"""Local schools
+	Currently there's only 2 schools, can change that in the world later. 
+	Allows for simulation of people interacting growing up. 
+	"""
 
-		def __init__(self):
-			self.name = None
+	def __init__(self, name):
+		super(School, self).__init__(name)
+		# self.name = None
+		pass
 			
 
 
