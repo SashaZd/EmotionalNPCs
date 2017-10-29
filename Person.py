@@ -1,25 +1,47 @@
 import random
 import names
+import itertools
 from configs import *
 
 class Person(object):
 	"""docstring for Person"""
-	def __init__(self, birth=None):
-		# super(Person, self).__init__()
+
+	# Incremental ID for all persons of this class
+	p_id = itertools.count().next
+	living_population = []
+	deceased_population = []
+
+	def __init__(self, birthdate=None, mother=None, father=None):
+		# @param birthdate = (day, month, year)
+		# @param Person mother: The birth mother
+		# @param Person father: The birth father
 		
-		self.id = id		# person_id sent from the simulation
+		self.id = Person.p_id()		# person_id sent from the simulation
 		self.gender = None
 
 		# Init properties that change based on the birth of the character from the simulation
-		self.mother = birth 
-		self.father = birth 
+		self.mother = mother 
+		self.father = father 
+		self.birthdate = birthdate 		# Need to add the birth month/day to the world sim to increment age
+
 		self.age = 0		# increments every year 
-		self.birthday = birth 		# Need to add the birth month/day to the world sim to increment age
+
+		# Names and aliases for this person
+		# Known aliases, in case of change of name to track family?
+		self.aliases = set()
 		self.last_name = None
 		self.first_name = None
 
-		# Known aliases, in case of change of name to track family?
-		self.aliases = set()
+		self.spouse = None
+
+		# Setting inherited physical attributes
+		self.set_inherited_physical_attr(mother, father)
+
+		self.__class__.living_population.append(self)
+
+
+	def do_age(self):
+		self.age += 1
 
 
 	@property
@@ -41,9 +63,10 @@ class Person(object):
 		return self.__mother
 
 	@mother.setter
-	def mother(self, birth=None):
-		if birth: 
-			self.__mother = birth.mother 
+	def mother(self, mother):
+		if hasattr(self, 'mother') and mother: 
+		# if not self.__mother and mother: 
+			self.__mother = mother
 		else: 
 			self.__mother = None
 
@@ -54,33 +77,41 @@ class Person(object):
 		return self.__father
 
 	@father.setter
-	def father(self, birth=None):
-		if birth: 
-			self.__father = birth.father 
+	def father(self, father):
+		if hasattr(self, 'father') and father: 
+		# if not self.__father and father: 
+			self.__father = father
 		else: 
 			self.__father = None
 
 
-	# Birthday: if unknown, set to current date
+	# Birthdate: if unknown, set to current date
 	@property
 	def birthdate(self):
 		return self.__birthdate
 
 	@birthdate.setter
-	def birthdate(self, birth=None, stage=None):
-		if birth: 
-			self.__birthdate = birth.birthdate 		# take the date from the simulation? 
-		else: 
-			self.__birthdate = None
+	def birthdate(self, birthdate=None):
+		if hasattr(self, 'birthdate'):
+			if birthdate[2] != self.__birthdate[2]: # changing the year to age? 
+				self.__birthdate[2] = birthdate[2]
+		elif birthdate: 
+			self.__birthdate = birthdate		# take the date from the simulation? 
+		
 
+	def magic_age(self, age):
 		# In case we're introducing a new character of advanced age
 		# Could also work for adoption? Not sure? 
-		if stage == "Adult": 
-			self.age = 21
-			self.__birthdate.replace(days=-365*AGE['ADULT'])
-		elif stage == "Young": 
-			self.age = 5
-			self.__birthdate.replace(days=-365*AGE['YOUNG'])
+		if age in AGE_GROUP.keys():
+			new_age = AGE_GROUP[age]
+
+		# Otherwise, the person's been provided with an age, change birthdate accordingly
+		elif isinstance(age, int):
+			new_age = age 
+		
+		diff_years = new_age - self.age 
+		self.age = new_age
+		self.birthdate = [self.birthdate[0], self.birthdate[2], self.birthdate[2]-diff_years]
 
 
 	# Last Name
@@ -152,13 +183,25 @@ class Person(object):
 		return "%s %s"%(self.__first_name, self.__last_name)
 
 
+	# Setting inherited physical characteristics
+	def set_inherited_physical_attr(self, mother, father):
+		pass
+
+
 	# Testing
+	def get_bio(self):
+		person = ("%s,"
+				"\n  id: %s,"
+				"\n  dob: %s,"
+				"\n  age: %s,"
+				"\n  gender: %s,"
+				"\n  mother: %s,"
+				"\n  father: %s")%(self.name, self.id, self.birthdate, self.age, self.gender, self.mother, self.father)
+		print person
+
+
 	def __str__(self):
 		return "%s"%(self.name)
-		# person = """\n id: %s,\n age: %s,\n gender: %s,\n name: %s,\n mother: %s,\n father: %s
-		# 	"""%(self.id, self.age, self.gender, self.name, self.mother, self.father)
-		# return person
-
 
 	def __repr__(self):
 		return "%s"%(self.name)

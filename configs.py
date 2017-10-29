@@ -1,8 +1,11 @@
+START_SIM_DATE = (1990,01,01)
+
 POSSIBLE_GENDERS = [
 	'male', 'female'
 ]
 
-AGE = {
+AGE_GROUP = {
 	'YOUNG': 5,
-	'ADULT': 21
+	'ADULT': 21,
+	'SETTLERS': 30,
 }
