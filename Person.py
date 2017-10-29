@@ -24,7 +24,8 @@ class Person(object):
 		self.father = father 
 		self.birthdate = birthdate 		# Need to add the birth month/day to the world sim to increment age
 
-		self.age = 0		# increments every year 
+		self.current_location = None
+		self.prior_locations = []
 
 		# Names and aliases for this person
 		# Known aliases, in case of change of name to track family?
@@ -32,16 +33,87 @@ class Person(object):
 		self.last_name = None
 		self.first_name = None
 
+		self.sexually_active = False
+		self.sexual_preference = self.set_sexual_preference()
 		self.spouse = None
 
+		self.age = 0		# increments every year 
+
 		# Setting inherited physical attributes
-		self.set_inherited_physical_attr(mother, father)
+		self.set_inherited_attr(mother, father)
 
 		self.__class__.living_population.append(self)
 
 
+	@property
+	def age(self):
+		return self.__age
+
+	@age.setter
+	def age(self, age):
+		"""Aging the person a year at a time. 
+		
+		@property age will allow for changes in flags... 
+		Eg. allowing for school, work, sexually active behaviour, etc
+		"""
+		if isinstance(age, int):
+			self.__age = age
+
+		# Check if age is old enough for sexual partners
+		if not self.sexually_active and self.age > 18: 
+			self.sexually_active = True
+
 	def do_age(self):
 		self.age += 1
+
+
+ 
+	def set_inherited_attr(self, mother, father):
+		"""Inherited Physical Characteristics
+		Setting inherited physical, or other characteristics
+		"""
+		# if self.mother: 
+		# 	self.current_location = self.mother.current_location
+		pass
+
+
+	@property
+	def current_location(self):
+		return self.__current_location
+
+	@current_location.setter
+	def current_location(self, new_location):
+		if not hasattr(self, "current_location"):
+			if self.mother: 
+				self.__current_location = self.mother.current_location
+			elif self.father: 
+				self.__current_location = self.father.current_location
+			else:
+				self.__current_location = random.choice(LOCATIONS)
+		
+		elif new_location: 
+			self.prior_locations.append(self.__current_location)
+			self.__current_location = new_location
+
+
+	def choose_sexual_partner(self):
+		pass
+
+
+	def set_sexual_preference(self):
+		"""Setting Sexual Preferences: Randomly at the moment
+		Using the statistics from Wikipedia's Demographics of Sexual Orientation: https://en.wikipedia.org/wiki/Demographics_of_sexual_orientation
+		Demographics from the United States used....
+		Thought: Eventually, could change the statistics based on regional preferences? 
+		"""
+		chance = random.random()
+		if chance <= 0.017: 
+			self.sexual_preference = 'homosexual'
+		elif chance <= 0.035: 
+			self.sexual_preference = 'bisexual'
+		else: 
+			self.sexual_preference = 'herosexual'
+
 
 
 	@property
@@ -76,6 +148,7 @@ class Person(object):
 	def father(self):
 		return self.__father
 
+
 	@father.setter
 	def father(self, father):
 		if hasattr(self, 'father') and father: 
@@ -99,25 +172,11 @@ class Person(object):
 			self.__birthdate = birthdate		# take the date from the simulation? 
 		
 
-	def magic_age(self, age):
-		# In case we're introducing a new character of advanced age
-		# Could also work for adoption? Not sure? 
-		if age in AGE_GROUP.keys():
-			new_age = AGE_GROUP[age]
-
-		# Otherwise, the person's been provided with an age, change birthdate accordingly
-		elif isinstance(age, int):
-			new_age = age 
-		
-		diff_years = new_age - self.age 
-		self.age = new_age
-		self.birthdate = [self.birthdate[0], self.birthdate[2], self.birthdate[2]-diff_years]
-
-
 	# Last Name
 	@property
 	def last_name(self):
 		return self.__last_name
+
 
 	@last_name.setter
 	def last_name(self, last_name=None):
@@ -126,7 +185,6 @@ class Person(object):
 		If there are no parents, choose random last name, otherwise take the last name of the parents
 		Uses Trey Hunner's Random Name Generator: http://treyhunner.com/2013/02/random-name-generator/
 		""" 
-		
 		if not hasattr(self, 'last_name'): 
 			if self.father: 
 				self.__last_name = self.father.last_name
@@ -183,11 +241,6 @@ class Person(object):
 		return "%s %s"%(self.__first_name, self.__last_name)
 
 
-	# Setting inherited physical characteristics
-	def set_inherited_physical_attr(self, mother, father):
-		pass
-
-
 	# Testing
 	def get_bio(self):
 		person = ("%s,"
@@ -208,6 +261,9 @@ class Person(object):
 
 	def __unicode__(self):
 		return "%s"%(self.name)
+
+
+
 
 
 

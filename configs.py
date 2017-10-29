@@ -7,5 +7,13 @@ POSSIBLE_GENDERS = [
 AGE_GROUP = {
 	'YOUNG': 5,
 	'ADULT': 21,
-	'SETTLERS': 30,
+	'SETTLERS': 25,
 }
+
+LOCATIONS = [
+	'Raleigh', 
+	'Atlanta',
+	'Pittsburgh', 
+	'New York',
+	'San Francisco'
+]

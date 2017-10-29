@@ -12,7 +12,7 @@ from Person import Person
 class World(object):		# the sim will run for 50 years by default
 	"""docstring for World"""
 
-	def __init__(self, until_year=25):
+	def __init__(self, until_year=40):
 		super(World, self).__init__()
 		
 		# Populations 
@@ -89,9 +89,9 @@ class World(object):		# the sim will run for 50 years by default
 			birthday = [birth.day, birth.month, birth.year-_year]
 			self.make_baby(birthday)
 
-		# Currently the only babies are the settler ones, so increase their age
-		for baby in Person.living_population: 
-			baby.magic_age("SETTLERS")
+		# # Currently the only babies are the settler ones, so increase their age
+		# for baby in Person.living_population: 
+		# 	baby.magic_age("SETTLERS")
 
 
 	def make_baby(self, birthday=None, mother=None, father=None):

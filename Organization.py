@@ -1,9 +1,11 @@
+from configs import *
+
 
 class Organization(object):
 	"""docstring for Organization
 	"""
 
-	def __init__(self, name,type):
+	def __init__(self, name=None, type=None):
 		super(Organization, self).__init__()
 		# self.arg = arg
 
@@ -11,6 +13,8 @@ class Organization(object):
 			self.name = name
 		else:
 			self.assign_name()
+
+		self.location = random.choice(LOCATIONS)  # Currently 4 locations are possible. 
 
 		self.type = type
 		self.current_member = []
@@ -39,6 +43,17 @@ class Organization(object):
 
 
 	""" TODO: add members to past_member when they leave"""
+
+
+	class School(Organization):
+		"""Local schools
+		Currently there's only 2 schools, can change that in the world later. 
+		Allows for simulation of people interacting growing up. 
+		"""
+
+		def __init__(self):
+			self.name = None
+			
 
 
 		
