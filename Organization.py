@@ -22,6 +22,7 @@ class Organization(object):
 		self.current_members = set()
 		self.past_members = set()
 		self.days_of_meet = [0,1,2,3,4]  # Python dates start on Monday=0
+		self.terminate_date = None
 		self.employee = []
 
 		self.__class__.current_organizations.append(self)
