@@ -5,7 +5,9 @@ TOPICS = [
 	# HOMOSEXUALITY 	- PRO ---> ANTI 
 	# VACCINATIONS 		- PRO ---> ANTI
 	# Abortion			- PRO ---> ANTI 
-
+	{'tag' = 'health',   'name' = 'vaccination'},   
+	{'tag' = 'health',   'name' = 'abortion'},     
+	{'tag' = 'politics', 'name' = 'death penalty'}  
 ]
 
 STARTING_SOCIETIES = [
