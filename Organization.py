@@ -16,22 +16,35 @@ class Organization(object):
 			self.assign_name()
 
 		self.location = random.choice(LOCATIONS)  # Currently 4 locations are possible. 
-		self.current_member = []
-		self.past_member = []
-		self.days_of_meet = [1,2,3,4,5]
+		self.current_members = set()
+		self.past_members = set()
+		self.days_of_meet = [0,1,2,3,4]  # Python dates start on Monday=0
 		self.employee = []
+
 		"""
 		TODO: leave and join?
 		"""
 
-	def __str__(self):
-		return self.name
-
 	def assign_name(self,newname):
 		self.name = newname
 
-	def add_member(self,person):
-		self.current_member.append(person)
+	def add_member(self, person):
+		self.current_members.add(person)
+
+	def remove_member(self, person):
+		if person in self.current_members: 
+			self.past_members.add(person)
+			self.current_members.remove(person)
+
+
+	def __str__(self):
+		return "%s"%(self.name)
+
+	def __repr__(self):
+		return "%s"%(self.name)
+
+	def __unicode__(self):
+		return "%s"%(self.name)
 
 	""" TODO: add members to past_member when they leave"""
 
@@ -44,16 +57,23 @@ class School(Organization):
 
 	def __init__(self, name):
 		super(School, self).__init__(name)
-		pass
+		
+		self.type = 'school'
+		
+	def enroll_student(self, student):
+		self.add_member(student)
+
+	def unenroll_student(self, student):
+		self.remove_member(student)
 			
 
-class GradSchool(Organization):
+class University(Organization):
 
 	""" Grad schools
 	"""
 	def __init__(self,name):
-		super(GradSchool, self).__init__(name)
-		self.days_of_meet = [1,2,3,4,5,6,7]
+		super(University, self).__init__(name)
+		self.days_of_meet = [0,1,2,3,4,5]
 		pass
 
 
