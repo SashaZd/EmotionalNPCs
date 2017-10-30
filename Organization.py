@@ -54,7 +54,6 @@ class School(Organization):
 
 	def __init__(self, name):
 		super(School, self).__init__(name)
-		# self.name = None
 		pass
 			
 

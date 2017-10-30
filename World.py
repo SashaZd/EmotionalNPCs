@@ -21,11 +21,25 @@ class World(object):		# the sim will run for 50 years by default
 		# self.deceased_population = []
 		self.person_id = 0
 		self.birthdays = None
-
 		# Time 
 		self.until_year=until_year
-		self.set_locations()
-		self.settler_babies()
+
+		self.setup_world()
+
+	
+	def setup_world(self):
+		""" Setup initial locations, organizations, etc of the world """
+		
+	  	# currently a city, needs to be extended further
+		self.locations = defaultdict(dict)
+		self.make_schools()
+		self.make_universities()
+		
+		self.settler_babies() 	# start with 100 people in the town as babies. No parents, inheritence.
+								# Their initial interactions will form the basis for relationships
+
+		# actions to perform on various days of week
+		# self.days_of_week = defaultdict[list]
 
 
 	def do_things(self, sim):
@@ -72,13 +86,6 @@ class World(object):		# the sim will run for 50 years by default
 			self.__birthdays[(day, month)].append(baby)
 
 
-	def simulate_time(self):
-		start = arrow.get('2017-01-01T00:00:00')
-		env = simpy.Environment()
-		env.process(self.do_things(env))
-		env.run(until=365*self.until_year)
-
-
 	def settler_babies(self, num=100):
 		# choose random birthdays for the first 100 people in the world
 		# they will be parents with some probability for the next generation
@@ -87,7 +94,7 @@ class World(object):		# the sim will run for 50 years by default
 		seed_births = set()
 		for day in itertools.islice(self.sample_wr(range(365)),num):
 			birth = sim_date.replace(days=day)
-			_year = random.choice(range(3))
+			_year = random.choice(range(4))
 			birthday = [birth.day, birth.month, birth.year-_year]
 			self.make_baby(birthday)
 
@@ -103,11 +110,7 @@ class World(object):		# the sim will run for 50 years by default
 
 		baby = Person(birthday)
 		self.birthdays = [birthday[0],birthday[1],baby]
-
-
-	def set_locations(self):
-		self.locations = defaultdict(dict)
-		self.make_schools()
+		
 
 
 	def make_schools(self):
@@ -127,7 +130,14 @@ class World(object):		# the sim will run for 50 years by default
 
 	# Sample with replacement
 	def sample_wr(self, population, _choose=random.choice):
-	    while True: yield _choose(population)
+		while True: yield _choose(population)
+
+
+	def simulate_time(self):
+		start = arrow.get('2017-01-01T00:00:00')
+		env = simpy.Environment()
+		env.process(self.do_things(env))
+		env.run(until=365*self.until_year)
 
 
 

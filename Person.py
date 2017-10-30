@@ -67,7 +67,6 @@ class Person(object):
 		self.age += 1
 
 
- 
 	def set_inherited_attr(self, mother, father):
 		"""Inherited Physical Characteristics
 		Setting inherited physical, or other characteristics
