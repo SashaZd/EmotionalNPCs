@@ -5,6 +5,9 @@ import random
 class Organization(object):
 	"""docstring for Organization
 	"""
+	o_id = itertools.count().next
+	current_organizations = []
+	past_organizations = []
 
 	def __init__(self, name=None):
 		super(Organization, self).__init__()
@@ -20,6 +23,8 @@ class Organization(object):
 		self.past_members = set()
 		self.days_of_meet = [0,1,2,3,4]  # Python dates start on Monday=0
 		self.employee = []
+
+		self.__class__.current_organizations.append(self)
 
 		"""
 		TODO: leave and join?
