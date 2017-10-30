@@ -6,7 +6,7 @@ class Organization(object):
 	"""docstring for Organization
 	"""
 
-	def __init__(self, name=None, type=None):
+	def __init__(self, name=None):
 		super(Organization, self).__init__()
 		# self.arg = arg
 
@@ -16,22 +16,13 @@ class Organization(object):
 			self.assign_name()
 
 		self.location = random.choice(LOCATIONS)  # Currently 4 locations are possible. 
-
-		self.type = type
 		self.current_member = []
 		self.past_member = []
-
-		if self.type == "gradschool":
-			self.days_of_meet = [1,2,3,4,5,6,7]
-		else:
-			self.days_of_meet = [1,2,3,4,5]
-
-		if self.type == "work":
-			self.employee = []
-			"""
-			TODO: leave and join?
-			"""
-
+		self.days_of_meet = [1,2,3,4,5]
+		self.employee = []
+		"""
+		TODO: leave and join?
+		"""
 
 	def __str__(self):
 		return self.name
@@ -41,7 +32,6 @@ class Organization(object):
 
 	def add_member(self,person):
 		self.current_member.append(person)
-
 
 	""" TODO: add members to past_member when they leave"""
 
@@ -58,5 +48,28 @@ class School(Organization):
 		pass
 			
 
+class GradSchool(Organization):
 
-		
+	""" Grad schools
+	"""
+	def __init__(self,name):
+		super(GradSchool, self).__init__(name)
+		self.days_of_meet = [1,2,3,4,5,6,7]
+		pass
+
+
+class Company(Organization):
+
+	""" Company
+	"""
+	def __init__(self,name):
+		super(Company, self).__init__(name)
+		pass
+
+class Club(Organization):
+
+	""" Interest Clubs
+	"""
+	def __init__(self,name):
+		super(Club, self).__init__(name)
+		pass
