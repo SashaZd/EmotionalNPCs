@@ -54,6 +54,17 @@ class Person(object):
 		self.__class__.living_population.append(self)
 
 
+	def simple_interaction(self, group):
+		for person in group: 
+			if person.name not in self.relationships: 
+				self.relationships[person.name] = 1 
+			else:
+				self.relationships[person.name] += 1
+
+
+	def do_age(self):
+		self.age += 1
+
 	@property
 	def age(self):
 		return self.__age
@@ -96,10 +107,6 @@ class Person(object):
 			# print "%s --- attending school ---- %s"%(self.name, chosen_school.name)
 
 
-	def do_age(self):
-		self.age += 1
-
-
 	def set_inherited_attr(self, mother, father):
 		"""Inherited Physical Characteristics
 		Setting inherited physical, or other characteristics
@@ -126,15 +133,6 @@ class Person(object):
 		elif new_location: 
 			self.prior_locations.append(self.__current_location)
 			self.__current_location = new_location
-
-
-	def simple_interaction(self, group):
-		for person in group: 
-			if person.name not in self.relationships: 
-				self.relationships[person.name] = 1 
-			else:
-				self.relationships[person.name] += 1
-
 
 	def choose_sexual_partner(self):
 		pass

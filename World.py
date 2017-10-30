@@ -6,7 +6,7 @@ from collections import defaultdict
 import itertools
 
 from Person import Person
-from Organization import School
+from Organization import *
 
 
 
@@ -18,6 +18,7 @@ class World(object):		# the sim will run for 50 years by default
 		
 		# Populations 
 		self.living_population = Person.living_population
+		self.organizations = Organization.current_organizations
 		# self.deceased_population = []
 		self.person_id = 0
 		self.birthdays = None

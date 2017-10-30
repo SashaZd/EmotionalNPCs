@@ -1,3 +1,19 @@
+TOPICS = [
+	# Politics 			- DEMOCRAT --> REPUBLICAN 
+	# Death Penalty		- Pro ---> Anti 
+
+	# HOMOSEXUALITY 	- PRO ---> ANTI 
+	# VACCINATIONS 		- PRO ---> ANTI
+	# Abortion			- PRO ---> ANTI 
+
+]
+
+STARTING_SOCIETIES = [
+	{'democrat':0.2, 'vaccinations':0.2, 'abortion': None}, # Society #1
+	{'democrat':None, 'vaccinations':0.8, 'abortion':0.2}, # Society #2
+	# {}  # Society #3
+]
+
 START_SIM_DATE = (1990,01,01)
 
 POSSIBLE_GENDERS = [
