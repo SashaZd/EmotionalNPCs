@@ -11,12 +11,14 @@ class Person(object):
 	living_population = []
 	deceased_population = []
 
-	def __init__(self, birthdate=None, mother=None, father=None):
+	def __init__(self, world, birthdate=None, mother=None, father=None):
 		# @param birthdate = (day, month, year)
 		# @param Person mother: The birth mother
 		# @param Person father: The birth father
 		
 		self.id = Person.p_id()		# person_id sent from the simulation
+		self.world = world
+
 		self.gender = None
 
 		# Init properties that change based on the birth of the character from the simulation
@@ -37,7 +39,14 @@ class Person(object):
 		self.sexual_preference = self.set_sexual_preference()
 		self.spouse = None
 
+		self.relationships = {}
+
+		self.activate_school = False
+		self.current_school = None
+		self.past_schools = []
+
 		self.age = 0		# increments every year 
+
 
 		# Setting inherited physical attributes
 		self.set_inherited_attr(mother, father)
@@ -63,11 +72,34 @@ class Person(object):
 		if not self.sexually_active and self.age > 18: 
 			self.sexually_active = True
 
+		if not self.activate_school and self.age > 5: 
+			self.activate_school = True
+			self.choose_school_to_attend()
+
+		if self.age > 17: 
+			self.activate_school = False
+			self.unenroll_from_school()
+
+
+	def unenroll_from_school(self):
+		# if self.
+		self.past_schools.append(self.current_school)
+		self.current_school = None
+
+
+	def choose_school_to_attend(self):
+		if 'school' in self.world.locations[self.current_location]:
+			chosen_school = random.choice(self.world.locations[self.current_location]['school'])
+			chosen_school.enroll_student(self)
+
+			self.current_school = chosen_school
+			# print "%s --- attending school ---- %s"%(self.name, chosen_school.name)
+
+
 	def do_age(self):
 		self.age += 1
 
 
- 
 	def set_inherited_attr(self, mother, father):
 		"""Inherited Physical Characteristics
 		Setting inherited physical, or other characteristics
@@ -94,6 +126,14 @@ class Person(object):
 		elif new_location: 
 			self.prior_locations.append(self.__current_location)
 			self.__current_location = new_location
+
+
+	def simple_interaction(self, group):
+		for person in group: 
+			if person.name not in self.relationships: 
+				self.relationships[person.name] = 1 
+			else:
+				self.relationships[person.name] += 1
 
 
 	def choose_sexual_partner(self):
