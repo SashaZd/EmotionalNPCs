@@ -1,5 +1,6 @@
 from configs import *
 import random
+import itertools
 
 
 class Organization(object):
