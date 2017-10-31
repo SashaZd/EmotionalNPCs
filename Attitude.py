@@ -13,6 +13,9 @@ class Attitude(object):
 
 
 	def do_affinity(self,change_value):
+		if change_value:
+
+
 		if self.affinity == None:
 			self.affinity = None
 		if self.affinity+change_value<=0.0:
@@ -27,10 +30,26 @@ class Attitude(object):
 		return self.__affinity
 
 	@affinity.setter
-	def affinity(self, affinity):
+	def affinity(self, new_value):
 		"""Change affinity toward a topic during a discussion """
-		if isinstance(affinity, float):
-			self.__affinity = affinity
+		# if hasattr(self, 'affinity'):
+		if not new_value:
+			self.__affinity = None
+		elif new_value < 0: 
+			self.__affinity = 0
+
+		elif new_value > 1:
+			self.__affinity = 1.0
+
+		else:
+			self.__affinity = new_value
+
+		# self.__affinity = new_value
+		# else:
+		# if change_value and isinstance(change_value, float):
+		# 	self.__affinity = change_value
+		# else: 
+		# 	self.__affinity = None
 
 	def do_confidence(self,change_value):
 		if self.confidence == None:
