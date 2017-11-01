@@ -2,6 +2,7 @@ import random
 import names
 import itertools
 from configs import *
+from Relationship import Relationship
 
 class Person(object):
 	"""docstring for Person"""
@@ -11,56 +12,65 @@ class Person(object):
 	living_population = []
 	deceased_population = []
 
-	def __init__(self, world, birthdate=None, mother=None, father=None):
-		# @param birthdate = (day, month, year)
-		# @param Person mother: The birth mother
-		# @param Person father: The birth father
-		
+
+	def __init__(self, world, birth):
+		# @param world = simulation object (currently world.. need to rename?)
+		# @param birth = Birth event from the Events.py file 
+
 		self.id = Person.p_id()		# person_id sent from the simulation
+		self.journal = []			# journal tracking all events in this Sim's life
 		self.world = world
 
-		self.gender = None
-
-		# Init properties that change based on the birth of the character from the simulation
-		self.mother = mother 
-		self.father = father 
-		self.birthdate = birthdate 		# Need to add the birth month/day to the world sim to increment age
-
-		self.current_location = None
-		self.prior_locations = []
+		# self.gender = None
 
 		# Names and aliases for this person
-		# Known aliases, in case of change of name to track family?
+		# Known aliases, in case of change of name during wedding, etc to track family?
 		self.aliases = set()
 		self.last_name = None
 		self.first_name = None
 
-		self.sexually_active = False
-		self.sexual_preference = self.set_sexual_preference()
+		# Current home_town, and past_addresses_town track where the person has lived before
+		# For instance, people may move to find a job, or go to school
+		self.house_number = None
+		self.city = None
+		# self.current_home_town = None
+		self.past_addresses = []
+
+		# Location tracks the actual location of the user in the world during a timestep
+		self.current_location = None
+# 
+		# Sexually active at the age 18 
+		self.flag_sexually_active = False
+		self.partner = None
 		self.spouse = None
 
-		self.relationships = {}
+		# Stores a list of Relationship objects, per person interacted with
+		# current_relationships = relationships currently in progress 
+		# past_relationships = if the person stops meeting this person, then after a set time, we demote them
+		# Future goal: consider how to renew past relationship? Need to track that, but future goal.
+		self.current_relationships = {}
+		self.past_relationships = {}
 
-		self.activate_school = False
-		self.current_school = None
+		# Academic details 
+		# ToDo: Represent the knowledge or degree topic? If related to society topic it could 
+		#  		represent an increase in the confidence of the topic 
+		self.flag_activate_school = False
+		self.school = None
 		self.past_schools = []
+		self.flag_activate_university = False
+		self.university = None
+		self.past_universities = None
 
+		# Age for the person 
+		# age is set as a @property. If it changes, it triggers flags in the person.
 		self.age = 0		# increments every year 
-
-
-		# Setting inherited physical attributes
-		self.set_inherited_attr(mother, father)
 
 		self.__class__.living_population.append(self)
 
-
-	def simple_interaction(self, group):
-		for person in group: 
-			if person.name not in self.relationships: 
-				self.relationships[person.name] = 1 
-			else:
-				self.relationships[person.name] += 1
-
+	
+	##################################################
+	# Aging and everything that comes with growing old
+	##################################################
 
 	def do_age(self):
 		self.age += 1
@@ -80,135 +90,83 @@ class Person(object):
 			self.__age = age
 
 		# Check if age is old enough for sexual partners
-		if not self.sexually_active and self.age > 18: 
-			self.sexually_active = True
+		if not self.flag_sexually_active and self.age > 18: 
+			self.flag_sexually_active = True
 
-		if not self.activate_school and self.age > 5: 
-			self.activate_school = True
-			self.choose_school_to_attend()
+		if not self.flag_activate_school and self.age > 5: 
+			self.enroll_in_school()
 
-		if self.age > 17: 
-			self.activate_school = False
+		if self.flag_activate_school and self.age > 17: 
 			self.unenroll_from_school()
 
 
+	##################################################
+	# Everything to do with Academia - Schools and Universities 
+	##################################################
+
+	# Possibility of enrolling in school -- some may choose not to? 
+	# ToDo: Change probability of enrollment occurring from 1 to some percentage chance
+	# Future: Could change this per region based on real stats? 
+	# ToDo: Need to move this to the events class? 
+	def enroll_in_school(self):
+		self.flag_activate_school = True
+
+		# If there's a school
+		if self.world.locations[self.city]['schools']:
+			chosen_school = random.choice(self.world.locations[self.city]['schools'])
+			chosen_school.enroll_student(self)
+			self.current_school = chosen_school
+		
+		else: 
+			print "%s district has no school to enroll in. Relocate?"%(self.city)
+
+
 	def unenroll_from_school(self):
-		# if self.
+		self.flag_activate_school = False
+		self.current_school.unenroll_student(self)
 		self.past_schools.append(self.current_school)
 		self.current_school = None
 
 
-	def choose_school_to_attend(self):
-		if 'school' in self.world.locations[self.current_location]:
-			chosen_school = random.choice(self.world.locations[self.current_location]['school'])
-			chosen_school.enroll_student(self)
 
-			self.current_school = chosen_school
-			# print "%s --- attending school ---- %s"%(self.name, chosen_school.name)
+	##################################################
+	# Everything to do with Addressses and Locations 
+	##################################################
+	
+	# To Do
+	def relocate_home(self, address=None, with_household=None):
+		"""Relocation of Home
+			Used to change the location of the Person's home 
+			If the actual address changes - compare house_number and city only? 
+			@param tuple address : (house_number, city)
+			@param boolean with_household : True (household moving with person) | False (moving out alone)
+		""" 
+		# if address != self.address: 
+		# 	self.past_addresses.append(self.current_home)
+		pass 
 
+	@property
+	def current_home_town(self):
+		return self.__current_home_town
 
-	def set_inherited_attr(self, mother, father):
-		"""Inherited Physical Characteristics
-		Setting inherited physical, or other characteristics
+	@current_home_town.setter
+	def current_home_town(self, new_location):
+		"""Moved to new home town
+			In order for us to track where the person is moving (with associated family)
 		"""
-		# if self.mother: 
-		# 	self.current_location = self.mother.current_location
-		pass
+		if not hasattr(self, "current_home_town") and new_location: 
+			self.__current_home_town = new_location
 
-
-	@property
-	def current_location(self):
-		return self.__current_location
-
-	@current_location.setter
-	def current_location(self, new_location):
-		if not hasattr(self, "current_location"):
-			if self.mother: 
-				self.__current_location = self.mother.current_location
-			elif self.father: 
-				self.__current_location = self.father.current_location
-			else:
-				self.__current_location = random.choice(LOCATIONS)
-		
-		elif new_location: 
-			self.prior_locations.append(self.__current_location)
-			self.__current_location = new_location
-
-	def choose_sexual_partner(self):
-		pass
-
-
-	def set_sexual_preference(self):
-		"""Setting Sexual Preferences: Randomly at the moment
-		Using the statistics from Wikipedia's Demographics of Sexual Orientation: https://en.wikipedia.org/wiki/Demographics_of_sexual_orientation
-		Demographics from the United States used....
-		Thought: Eventually, could change the statistics based on regional preferences? 
-		"""
-		chance = random.random()
-		if chance <= 0.017: 
-			self.sexual_preference = 'homosexual'
-		elif chance <= 0.035: 
-			self.sexual_preference = 'bisexual'
 		else: 
-			self.sexual_preference = 'herosexual'
+			raise ValueError("Error! Use the relocate_home method to move independently or with household")
 
-
-
+	
+	##################################################
+	# Everything to do with Names
+	##################################################
 	@property
-	def gender(self):
-		return self.__gender
-
-	@gender.setter
-	def gender(self, gender=None):
-		"""allows the gender to be set only during birth"""
-		if not hasattr(self, 'gender'): 
-			self.__gender = random.choice(POSSIBLE_GENDERS)
-		else:
-			self.__gender = self.__gender
-
-
-	# Setting the mother
-	@property
-	def mother(self):
-		return self.__mother
-
-	@mother.setter
-	def mother(self, mother):
-		if hasattr(self, 'mother') and mother: 
-		# if not self.__mother and mother: 
-			self.__mother = mother
-		else: 
-			self.__mother = None
-
-
-	# Setting the father
-	@property
-	def father(self):
-		return self.__father
-
-
-	@father.setter
-	def father(self, father):
-		if hasattr(self, 'father') and father: 
-		# if not self.__father and father: 
-			self.__father = father
-		else: 
-			self.__father = None
-
-
-	# Birthdate: if unknown, set to current date
-	@property
-	def birthdate(self):
-		return self.__birthdate
-
-	@birthdate.setter
-	def birthdate(self, birthdate=None):
-		if hasattr(self, 'birthdate'):
-			if birthdate[2] != self.__birthdate[2]: # changing the year to age? 
-				self.__birthdate[2] = birthdate[2]
-		elif birthdate: 
-			self.__birthdate = birthdate		# take the date from the simulation? 
-		
+	def name(self):
+		return "%s %s"%(self.first_name, self.last_name)
 
 	# Last Name
 	@property
@@ -223,72 +181,78 @@ class Person(object):
 		If there are no parents, choose random last name, otherwise take the last name of the parents
 		Uses Trey Hunner's Random Name Generator: http://treyhunner.com/2013/02/random-name-generator/
 		""" 
-		if not hasattr(self, 'last_name'): 
-			if self.father: 
-				self.__last_name = self.father.last_name
-			elif self.mother: 
-				self.__last_name = self.mother.last_name
-			else:
-				self.__last_name = names.get_last_name()
-		
+		if not hasattr(self, 'last_name') and last_name: 
+			self.__last_name = last_name
+
 		# Changing the last name
-		elif last_name != self.__last_name: 
-			self.aliases.add(self.get_full_name())
+		elif last_name and last_name != self.__last_name: 
+			self.aliases.add(self.name)
 			self.__last_name = last_name
 
 
-
-	# First Name
 	@property
 	def first_name(self):
 		return self.__first_name
 
+
 	@first_name.setter
 	def first_name(self, first_name=None):
-		""" Initializing a last name
-		If no name from before, then assign a name from the random name generator 
-		If changing your name, then add to known aliases
-		Uses Trey Hunner's Random Name Generator: http://treyhunner.com/2013/02/random-name-generator/
-		""" 
-		if not hasattr(self, 'first_name'): 
-			self.__first_name = names.get_first_name(gender=self.gender)
-		
-		# Changing the first name, add to known aliases
-		elif first_name != self.__first_name: 
-			self.aliases.add(self.get_full_name())
+		""" Changing existing first name
+		If the person already has a name and is changing it, then add it to the aliases
+		"""
+
+		if not hasattr(self, 'first_name') and first_name: 
+			self.__first_name = first_name
+
+		elif first_name and first_name != self.first_name:
+			self.aliases.add(self.name)
 			self.__first_name = first_name
 
 
-	def set_first_name(self, first_name=None):
-		""" Give random first name based on gender 
-			Uses Trey Hunner's Random Name Generator: http://treyhunner.com/2013/02/random-name-generator/ 
-		"""
-		# If the person already has a name and is changing it, then add it to the aliases
-		if first_name: 
-			if self.first_name: 
-				self.aliases.add(self.get_full_name())
-			self.first_name = first_name
+	##################################################
+	# Relationships with other people 
+	##################################################
 
-		else:
-			self.first_name = names.get_first_name(gender=self.gender)
-
-
-	# Returns the full name
-	@property
-	def name(self):
-		return "%s %s"%(self.__first_name, self.__last_name)
+	def simple_interaction(self, group, relationship_type):
+		"""Power up relationship with a person""" 
+		for person in group: 
+			if person != self: 
+				self.update_relationship(person, relationship_type)
+			# if person.name not in self.current_relationships: 
+			# 	self.current_relationships[person.name] = {
+			# 	}
+			# else:
+			# 	self.current_relationships[person.name] += 1
 
 
+	def update_relationship(self, other, relationship_type):
+		if other in self.current_relationships.keys():
+			relationship = self.current_relationships[other]
+
+		# Don't have a relationship with this person
+		# Creating a new relationship with this person
+		else: 
+			relationship = Relationship(self, other)
+			self.current_relationships[other] = relationship
+		
+		relationship.update_relationship(relationship_type, 1)
+
+
+
+	##################################################
 	# Testing
-	def get_bio(self):
-		person = ("%s,"
-				"\n  id: %s,"
-				"\n  dob: %s,"
-				"\n  age: %s,"
-				"\n  gender: %s,"
-				"\n  mother: %s,"
-				"\n  father: %s")%(self.name, self.id, self.birthdate, self.age, self.gender, self.mother, self.father)
-		print person
+	##################################################
+
+	def who_is(self):
+		# person = ("%s,"
+		# 		"\n  id: %s,"
+		# 		"\n  dob: %s,"
+		# 		"\n  age: %s,"
+		# 		"\n  gender: %s,"
+		# 		"\n  mother: %s,"
+		# 		"\n  father: %s")%(self.name, self.id, self.birthdate, self.age, self.gender, self.mother, self.father)
+		# print person
+		return self.__dict__
 
 
 	def __str__(self):
@@ -297,8 +261,8 @@ class Person(object):
 	def __repr__(self):
 		return "%s"%(self.name)
 
-	def __unicode__(self):
-		return "%s"%(self.name)
+	# def __unicode__(self):
+	# 	return "%s"%(self.name)
 
 
 

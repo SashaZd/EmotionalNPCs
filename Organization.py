@@ -1,6 +1,6 @@
 from configs import *
 import random
-
+import itertools
 
 class Organization(object):
 	"""docstring for Organization
@@ -9,16 +9,23 @@ class Organization(object):
 	current_organizations = []
 	past_organizations = []
 
-	def __init__(self, name=None):
+	def __init__(self, name, location=None, founding_date=None):
 		super(Organization, self).__init__()
 		# self.arg = arg
 
-		if name: 
-			self.name = name
-		else:
-			self.assign_name()
+		# if name: 
+		# 	self.name = name
+		# else:
+		# 	self.assign_name()
+		self.name = name
+		self.type = None
+		self.founding_date = founding_date
 
-		self.location = random.choice(LOCATIONS)  # Currently 4 locations are possible. 
+		if location: 
+			self.location = location
+		else:
+			self.location = random.choice(LOCATIONS)
+
 		self.current_members = set()
 		self.past_members = set()
 		self.days_of_meet = [0,1,2,3,4]  # Python dates start on Monday=0
@@ -60,8 +67,8 @@ class School(Organization):
 	Allows for simulation of people interacting growing up. 
 	"""
 
-	def __init__(self, name):
-		super(School, self).__init__(name)
+	def __init__(self, name, location=None, founding_date=None):
+		super(School, self).__init__(name, location, founding_date)
 		
 		self.type = 'school'
 		
@@ -90,6 +97,7 @@ class Company(Organization):
 		super(Company, self).__init__(name)
 		pass
 
+
 class Club(Organization):
 
 	""" Interest Clubs
@@ -97,3 +105,17 @@ class Club(Organization):
 	def __init__(self,name):
 		super(Club, self).__init__(name)
 		pass
+
+
+
+class Hospital(Organization): 
+	"""
+		For babies to be born in 
+	""" 
+	def __init__(self, name, location, founding_date=None):
+		super(Hospital, self).__init__(name, location, founding_date)
+		pass
+
+
+
+

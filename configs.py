@@ -1,3 +1,13 @@
+
+
+# class Configs(object):
+# 	"""docstring for Configs"""
+# 	def __init__(self, arg):
+# 		super(Configs, self).__init__()
+# 		self.arg = arg
+		
+
+
 TOPICS = [
 	# Politics 			- DEMOCRAT --> REPUBLICAN 
 	# Death Penalty		- Pro ---> Anti 
@@ -73,6 +83,40 @@ SCHOOL_NAMES = [
 	"The Discovery School",
 	"Ditton CofE Junior School",
 	"Downs View Infants School",
+]
+
+
+HOSPITAL_NAMES = [
+	'Citrus Medical Center',
+	'Clemency Medical Clinic',
+	'Silver Birch Community Hospital',
+	'Grand Mountain Hospital Center',
+	'Golden Valley Hospital',
+	'Fairbanks Clinic',
+	'Horizon Medical Clinic',
+	'Grand Mountain Community Hospital',
+	'Featherfall Hospital Center',
+	'Green Hill Hospital',
+	'Pine Valley Hospital',
+	'Sapphire Lake Medical Clinic',
+	'Rosewood Medical Clinic',
+	'Wellness Medical Clinic',
+	'Pioneer Clinic',
+	'Spring Forest Hospital',
+	'Freeman Clinic',
+	'Castle Hospital',
+	'Tranquility Hospital',
+	'Hill Crest Hospital Center',
+	'Silver Pine Clinic',
+	'Summer Springs Hospital',
+	'Lakeside Clinic',
+	'Fairmont Medical Center',
+	'Progress Medical Clinic',
+	'Oak Valley Community Hospital',
+	'Rose Medical Center',
+	'Mountain View General Hospital',
+	'Silver Wing Hospital Center',
+	'Griffin Hospital Center'
 ]
 
 
