@@ -15,13 +15,15 @@ TOPICS = [
 	# HOMOSEXUALITY 	- PRO ---> ANTI 
 	# VACCINATIONS 		- PRO ---> ANTI
 	# Abortion			- PRO ---> ANTI 
-
+	{'tag' : 'health',   'name' : 'vaccination'},   
+	{'tag' : 'health',   'name' : 'abortion'},     
+	{'tag' : 'politics', 'name' : 'death penalty'}  
 ]
 
 STARTING_SOCIETIES = [
-	{'democrat':0.2, 'vaccinations':0.2, 'abortion': None}, # Society #1
-	{'democrat':None, 'vaccinations':0.8, 'abortion':0.2}, # Society #2
-	# {}  # Society #3
+	{'democrat':0.2, 'vaccinations':0.2, 'abortion': None,'death penalty':0.9}, # Society #1
+	{'democrat':0.3, 'vaccinations':0.8, 'abortion':0.2,'death penalty':0.1}, # Society #2
+	{'democrat':0.9, 'vaccinations':0.5, 'abortion':0.9,'death penalty':0.4}  # Society #3
 ]
 
 START_SIM_DATE = (1990,01,01)
