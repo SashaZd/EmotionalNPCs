@@ -8,11 +8,13 @@ import itertools
 from Person import Person
 from Organization import *
 from Event import *
+from Town import *
 
 
 
 class World(object):		# the sim will run for 50 years by default
 	"""docstring for World"""
+	current_date = arrow.get('%s-%s-%s'%(START_SIM_DATE[0],START_SIM_DATE[1],START_SIM_DATE[2]))
 
 	def __init__(self, until_year=10):
 		super(World, self).__init__()
@@ -25,29 +27,43 @@ class World(object):		# the sim will run for 50 years by default
 		self.birthdays = None
 		# Time 
 		self.until_year=until_year
-		self.current_date = arrow.get('%s-%s-%s'%(START_SIM_DATE[0],START_SIM_DATE[1],START_SIM_DATE[2]))
 
+		self.towns = {}
 		self.setup_world()
 
 	
 	def setup_world(self):
 		""" Setup initial locations, organizations, etc of the world """
 		
-	  	# currently a city, needs to be extended further
+		# currently a city, needs to be extended further
 		self.locations = {key:{
 			'schools':[], 'universities':[], 'hospitals':[]
 		} for key in LOCATIONS}
 
-		self.make_hospitals()
+		# Citizens will be compulsarily affiliated with a geographic location
+		# Other groups are optional. But if you leave one location, you must move to another
+		for location_name in LOCATIONS: 
+			town = Town(location_name, self)
+			self.towns[location_name] = town
 
-		# For every day of the week, link all currently running organizations that meet on that day
-		# self.days_of_week = [key:set() for key in range(0)]
 
-		# Make a list of all schools
-		self.make_schools()
-		# self.make_universities()
+		# Area 51 - Will be the default town
+		# If a person leaves the simulation entirely (eg. dies, or gets kidnapped by aliens, 
+		# then we move them to Area 51)
+		self.towns["Area 51"] = Town("Area 51", self)
+		self.towns["Area 51"].area_51_setup()
 
-		self.settler_babies() 	# start with 100 people in the town as babies. No parents, inheritence.
+
+		# self.make_hospitals()
+
+		# # For every day of the week, link all currently running organizations that meet on that day
+		# # self.days_of_week = [key:set() for key in range(0)]
+
+		# # Make a list of all schools
+		# self.make_schools()
+		# # self.make_universities()
+
+		# self.settler_babies() 	# start with 100 people in the town as babies. No parents, inheritence.
 								# Their initial interactions will form the basis for relationships
 
 		# actions to perform on various days of week
@@ -57,9 +73,9 @@ class World(object):		# the sim will run for 50 years by default
 	def do_things(self):
 		born = []
 		while True: # self.env.now <= self.until_year:
-			self.current_date = self.current_date.replace(days=1)
-			day, month = self.current_date.day, self.current_date.month
-			weekday = self.current_date.weekday() # returns day of the week, 0-6 0=Monday
+			World.current_date = World.current_date.replace(days=1)
+			day, month = World.current_date.day, World.current_date.month
+			weekday = World.current_date.weekday() # returns day of the week, 0-6 0=Monday
 			self.age_living_population(day, month)
 
 			if weekday < 4: 
@@ -129,33 +145,7 @@ class World(object):		# the sim will run for 50 years by default
 			self.__birthdays[(day, month)].append(baby)
 
 
-	def settler_babies(self, num=50):
-		# choose random birthdays for the first 100 people in the world
-		# they will be parents with some probability for the next generation
-
-		sim_date = arrow.get('%s-%s-%s'%(START_SIM_DATE[0],START_SIM_DATE[1],START_SIM_DATE[2]))
-		seed_births = set()
-		for day in itertools.islice(self.sample_wr(range(365)),num):
-			birth = sim_date.replace(days=day)
-			_year = random.choice(range(10))
-			birthday = [birth.day, birth.month, birth.year-_year]
-			self.make_baby(birthday)
-
-		# # Currently the only babies are the settler ones, so increase their age
-		# for baby in Person.living_population: 
-		# 	baby.magic_age("SETTLERS")
-
-
-	def make_baby(self, birthday=None, mother=None, father=None):
-		# if not birthday: 
-		# 	raise ValueError("Baby needs a birthday in World.make_baby()")
-		# 	return 
-
-		birth = Birth(self)
-		# baby = Person(self, birth)
-		# print birth.baby
-		# print baby.name
-		self.birthdays = [birthday[0],birthday[1],birth.baby]
+	
 		
 
 
@@ -166,8 +156,9 @@ class World(object):		# the sim will run for 50 years by default
 		# 	for school in self.locations[loc]['school']:
 	# 			print school
 
-	def get_random_location(self):
-		return random.choice(LOCATIONS)
+	@property
+	def random_location(self):
+		return self.towns[random.choice(LOCATIONS)]
 
 
 	def make_schools(self):
@@ -184,7 +175,7 @@ class World(object):		# the sim will run for 50 years by default
 
 		
 		while school_names: 
-			location = self.get_random_location()
+			location = self.random_location
 			school = School(school_names.pop(), location)
 			self.locations [location]['schools'].append(school)
 			
@@ -210,6 +201,9 @@ class World(object):		# the sim will run for 50 years by default
 		self.env = simpy.Environment()
 		self.env.process(self.do_things())
 		self.env.run(until=365*self.until_year) 
+
+
+	
 
 
 

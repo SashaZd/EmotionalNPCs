@@ -24,7 +24,6 @@ class Relationship(object):
 
 		else: 
 			self.relationships[relationship_type]['charge'] += by_charge
-			
 			if self.relationships[relationship_type]['charge'] >= 365: 
 				self.relationships[relationship_type]['relationship'] += int(self.relationships[relationship_type]['charge']/365)
 				self.relationships[relationship_type]['charge'] = (self.relationships[relationship_type]['charge']%365)

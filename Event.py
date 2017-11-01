@@ -32,28 +32,36 @@ class Birth(Event):
 	"""docstring for Birth"""
 	def __init__(self, world, mother=None, father=None):
 		super(Birth, self).__init__(world.current_date)
+		self.world = world
 		self.baby = Person(world, self)
 		self.baby.father = father
 		self.baby.mother = mother
+		self.date = self.world.current_date
 		self.gender = None
-		parent_message = ""
-
-		if mother: 
-			self.baby.birth_location = mother.city
-			self.baby.city = mother.city
-			parent_message.append("My mother is %s."%(self.baby.mother.name))
-
-		if father: 
-			parent_message.append("My father is %s"%(self.baby.father.name))
-
-		else:
-			self.baby.birth_location = random.choice(LOCATIONS)
-			self.baby.city = self.baby.birth_location
-
 
 		self._set_baby_name()
 		self.set_sexual_preference()
 		self.set_inherited_attr()
+
+		parent_message = ""
+
+		if mother: 
+			self.baby.birth_location = mother.town
+			self.baby.town = mother.town
+			parent_message.append("My mother is %s."%(self.baby.mother.name))
+
+		else:
+			self.baby.birth_location = self.world.towns['Area 51']
+			self.baby.town = self.world.towns['Area 51']
+			# print self.baby.town
+
+		if father: 
+			parent_message.append("My father is %s"%(self.baby.father.name))
+		
+		self.baby.town.add_citizen(self.baby)
+
+
+		
 
 		if not mother and not father: 
 			parent_message = "I had no parents."
@@ -63,8 +71,7 @@ class Birth(Event):
 				
 			# if father:
 				
-
-		self.add_to_journal(self.baby, "I was born in %s. %s"%(self.baby.birth_location, parent_message))
+		self.birth_journal_entry = "I was born in %s. %s"%(self.baby.birth_location, parent_message)
 		
 		if mother: 
 			self.add_to_journal(mother, "Had child with %s. Decided to name baby, %s"%(self.baby.father.name, self.baby.name))
@@ -73,18 +80,22 @@ class Birth(Event):
 
 
 
+
 	# Birthdate: if unknown, set to current date
 	@property
 	def birthdate(self):
-		return self.baby.__birthdate
+		return self.baby.birthdate
 
 	@birthdate.setter
 	def birthdate(self, birthdate=None):
 		if hasattr(self, 'birthdate'):
-			if birthdate[2] != self.baby.__birthdate[2]: # changing the year to age? 
-				self.baby.__birthdate[2] = birthdate[2]
+			if birthdate != self.baby.birthdate: # changing the year to age? 
+				self.baby.birthdate = birthdate
 		elif birthdate: 
-			self.baby.__birthdate = birthdate		# take the date from the simulation? 
+			self.baby.birthdate = birthdate		# take the date from the simulation? 
+
+		self.baby.age = abs(self.baby.birthdate - self.world.current_date).days/365
+		self.date = birthdate
 
 
 	# Everything reg. the Name
@@ -172,14 +183,141 @@ class Birth(Event):
 		elif chance <= 0.035: 
 			self.baby.sexual_preference = 'bisexual'
 		else: 
-			self.baby.sexual_preference = 'herosexual'
+			self.baby.sexual_preference = 'heterosexual'
 
 
 
+
+
+class TheBeginning(Event):
+	"""The start of the world
+		Settlers are generated in Area 51. They divide into couples (if at all), and 
+		then relocate to another town.
+	"""
+	def __init__(self, world):
+		super(TheBeginning, self).__init__(world.current_date)
+		self.world = world
+		print "Big Bang!"
+
+		# Makes a seed population of settlers to populate the world with
+		self.settler_babies(50)
+
+		# Find partners - not based on affinity at the moment. Totally random
+		# Consider it after effects of alien abduction 
+		self.random_match_couples()
+
+
+	def settler_babies(self, num=50):
+		"""Initial seed population for the world
+		@param int num
+			Choose random birthdays for the first people in the world
+			They will pair up and then migrate to other cities.
+		""" 
+		sim_date = self.world.current_date
+		for day in itertools.islice(self.world.sample_wr(range(365)),num):
+			birth = sim_date.replace(days=day)
+			_year = 20 + random.choice(range(10))
+			birthdate = sim_date.replace(years=-_year)
+			born = Birth(self.world)
+
+			# Change the birthdate of the baby by a few years since he/she is a settler and an adult
+			born.birthdate = birthdate
+
+
+	def random_match_couples(self):
+		"""Maybe make settler couples based on some probability
+			Unlike the rest of the cases, this is not based on initial interaction.
+		"""
 		
-		
+		while self.world.towns['Area 51'].citizens:
+			person = self.world.towns['Area 51'].random_citizen
 
+			matches = [match for match in self.world.towns['Area 51'].citizens if abs(match.age-person.age) <= 5]
+			matches.remove(person)
+
+			if person.sexual_preference == 'homosexual': 
+				matches = [match for match in matches if match.gender == person.gender]
+			elif person.sexual_preference == 'heterosexual': 
+				matches = [match for match in matches if match.gender != person.gender]
+
+			if matches and random.random() >= 0.452:
+				significant_other = random.choice(matches)
+				# print "Couple! %s and %s"%(person.name, significant_other.name)
+				self.random_relocate(person, significant_other)
+
+			else:
+				self.random_relocate(person)
+
+
+	def random_relocate(self, person, significant_other=None):
+		"""Choose a random town to relocate to"""
+		new_town = self.world.random_location
+		house_num = new_town.find_unoccupied_home()
+		
+		# Change journal entry
+		if not significant_other: 
+			person.town.remove_citizen(person)
+			new_town.add_citizen(person, house_num)
+			journal_message = "Moving to %s. (singing) Alone again... naturally."%(new_town.name)
+			self.add_to_journal(person, journal_message)
+			# print person.name, journal_message
+
+		else:
+			self.random_marriage(person, significant_other)
+			person.town.remove_citizen(person)
+			significant_other.town.remove_citizen(significant_other)
+			new_town.add_citizen(person, house_num)
+			new_town.add_citizen(significant_other, house_num)
+			journal_message = "Moving to a new town, %s. This place is spooky."%(new_town.name)
+			self.add_to_journal(person, journal_message)
+			self.add_to_journal(significant_other, journal_message)
 	
+
+	def random_marriage(self, person, significant_other):
+		"""Randomly get married
+		Again, this is an exception case since otherwise many social relationship factors are involved
+		""" 
+		person.update_relationship(significant_other, "Spouse")
+
+		p_journal_message = "Got married to %s."%(significant_other.name)
+		s_journal_message = "Got married to %s."%(person.name)
+		person.spouse = significant_other
+		significant_other.spouse = person
+
+		# Probability of changing last name
+		if random.random() >= 0.295:
+			if person.gender == 'male': 
+				significant_other.last_name = person.last_name
+				s_journal_message = "%s. I took his last name. I'm now %s"%(s_journal_message, significant_other.last_name)
+			elif significant_other.gender == 'male': 
+				person.last_name = significant_other.last_name
+				p_journal_message = "%s. I took his last name. I'm now %s"%(p_journal_message, person.last_name)
+			else:
+				significant_other.last_name = person.last_name
+				s_journal_message = "%s. I took her last name. I'm now %s"%(s_journal_message, significant_other.last_name)
+			
+		# This is probably not true. Need to check stats and rules?
+		elif random.random() <= 0.295:
+			couple = [person, significant_other]
+			random.shuffle(couple)
+			new_last_name = "%s-%s"%(couple[0].last_name,couple[1].last_name)
+			person.last_name = new_last_name
+			significant_other.last_name = new_last_name
+			s_journal_message = "%s. We hyphenated our names! I'm now %s"%(s_journal_message, significant_other.last_name)
+			p_journal_message = "%s. We hyphenated our names! I'm now %s"%(p_journal_message, person.last_name)
+		
+		else:
+			s_journal_message = "%s. We decided to keep our names."%(s_journal_message)
+			p_journal_message = "%s. We decided to keep our names."%(p_journal_message)
+
+		self.add_to_journal(person, p_journal_message)
+		self.add_to_journal(significant_other, s_journal_message)
+
+		# return s_journal_message, p_journal_message
+
+		# print "New Family: ", person.name, significant_other.name
+
+
 
 
 

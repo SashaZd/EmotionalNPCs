@@ -21,7 +21,7 @@ class Person(object):
 		self.journal = []			# journal tracking all events in this Sim's life
 		self.world = world
 
-		# self.gender = None
+		self.birthdate = None
 
 		# Names and aliases for this person
 		# Known aliases, in case of change of name during wedding, etc to track family?
@@ -32,8 +32,7 @@ class Person(object):
 		# Current home_town, and past_addresses_town track where the person has lived before
 		# For instance, people may move to find a job, or go to school
 		self.house_number = None
-		self.city = None
-		# self.current_home_town = None
+		self.town = None
 		self.past_addresses = []
 
 		# Location tracks the actual location of the user in the world during a timestep
@@ -89,6 +88,10 @@ class Person(object):
 		if isinstance(age, int):
 			self.__age = age
 
+
+		if not self.town or (self.town == self.world.towns['Area 51']):
+			return
+
 		# Check if age is old enough for sexual partners
 		if not self.flag_sexually_active and self.age > 18: 
 			self.flag_sexually_active = True
@@ -134,31 +137,50 @@ class Person(object):
 	##################################################
 	
 	# To Do
-	def relocate_home(self, address=None, with_household=None):
+	def relocate_home(self, town=None, with_household=None):
 		"""Relocation of Home
 			Used to change the location of the Person's home 
 			If the actual address changes - compare house_number and city only? 
 			@param tuple address : (house_number, city)
-			@param boolean with_household : True (household moving with person) | False (moving out alone)
+			@param Person[] with_household : True (household moving with person) | False (moving out alone)
 		""" 
 		# if address != self.address: 
 		# 	self.past_addresses.append(self.current_home)
-		pass 
+		
+		if self.town != town:
+			town.find_unoccupied_home()
 
-	@property
-	def current_home_town(self):
-		return self.__current_home_town
 
-	@current_home_town.setter
-	def current_home_town(self, new_location):
-		"""Moved to new home town
-			In order for us to track where the person is moving (with associated family)
-		"""
-		if not hasattr(self, "current_home_town") and new_location: 
-			self.__current_home_town = new_location
 
-		else: 
-			raise ValueError("Error! Use the relocate_home method to move independently or with household")
+	# @property
+	# def town(self):
+	# 	# print "Getting town"
+	# 	if not hasattr(self, 'town'):
+	# 		self.__town = None
+	# 	return self.__town
+			
+
+
+	# @town.setter
+	# def town(self, town=None):
+	# 	print "Setting town"
+	# 	""" Initializing a last name
+	# 	If given a last name, assume marriage/birth/etc and assign it to the sim
+	# 	If there are no parents, choose random last name, otherwise take the last name of the parents
+	# 	Uses Trey Hunner's Random Name Generator: http://treyhunner.com/2013/02/random-name-generator/
+	# 	""" 
+	# 	# if not hasattr(self, 'town'): 
+	# 	self.__town = town
+
+		# # Changing the last name
+		# elif town and town != self.__town: 
+		# 	self.aliases.add(self.name)
+		# 	self.__town = town
+
+		
+
+		# else: 
+		# 	print "Error! Use the relocate_home method to move independently or with household"
 
 	
 	##################################################
