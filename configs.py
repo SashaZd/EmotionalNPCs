@@ -8,17 +8,36 @@
 		
 
 
-TOPICS = [
+TOPICS = {
 	# Politics 			- DEMOCRAT --> REPUBLICAN 
-	# Death Penalty		- Pro ---> Anti 
+	'democrat': {'tags' : ['politics']},
+	
+	# heterosexuality 	- PRO (supports only this) --- Other (Supports homosexuality/bisexuality)
+	'heterosexuality': {'tags' : ['social']},
+	
+	# VACCINATIONS - PRO ---> ANTI
+	'vaccination': {'tags' : ['health', 'politics']},
 
-	# HOMOSEXUALITY 	- PRO ---> ANTI 
-	# VACCINATIONS 		- PRO ---> ANTI
-	# Abortion			- PRO ---> ANTI 
-	{'tag' : 'health',   'name' : 'vaccination'},   
-	{'tag' : 'health',   'name' : 'abortion'},     
-	{'tag' : 'politics', 'name' : 'death penalty'}  
-]
+	# Abortion - PRO ---> ANTI  
+	'abortion': {'tags' : ['health', 'politics']},  
+
+	# Death Penalty	- Pro ---> Anti    
+	'death_penalty': {'tags' : ['politics']}
+}
+
+SCHOOL_SUBJECTS = {
+	'science': {'num_facts': [20], 'tags':['vaccination', 'abortion', 'health']},
+	'sex_ed': {'num_facts': [4], 'tags':['abortion', 'heterosexuality', 'health']},
+	'mathematics': {'num_facts': [14]},
+	'art': {'num_facts': [10], 'tags':['painting', 'photography', 'dancing', 'music', 'theatre']},
+	'history': {'num_facts': [7], 'tags':['politics', 'social']},
+	'literature': {'num_facts': [13]},
+	'geography': {'num_facts': [11], 'tags':['social']},
+	'commerce': {'num_facts': [19], 'tags':['finance']},
+	'economics': {'num_facts': [16], 'tags':['finance']},
+	'home_ec': {'num_facts': [10], 'tags':['cooking', 'baking', 'carpentry']},
+}
+
 
 STARTING_SOCIETIES = [
 	{'democrat':0.2, 'vaccinations':0.2, 'abortion': None,'death penalty':0.9}, # Society #1

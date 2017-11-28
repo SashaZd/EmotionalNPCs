@@ -81,6 +81,7 @@ class Town(object):
 		# ToDo: Need to add birthdays for the person into the town instead of the world
 		if not house_num: 
 			house_num = self.find_unoccupied_home()
+
 		self.citizens.append(person)
 		self.homes[house_num]['occupied'] = True
 		self.homes[house_num]['family'] = person.last_name

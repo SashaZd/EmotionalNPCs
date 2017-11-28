@@ -25,8 +25,7 @@ class Event(object):
 
 	def add_to_journal(self, owner, message):
 		owner.journal.append("%s - %s "%(self.date.format('DD-MM-YYYY'), message))
-		
-		
+				
 
 class Birth(Event):
 	"""docstring for Birth"""
@@ -71,13 +70,16 @@ class Birth(Event):
 				
 			# if father:
 				
-		self.birth_journal_entry = "I was born in %s. %s"%(self.baby.birth_location, parent_message)
+		birth_journal_entry = "I was born in %s. %s"%(self.baby.birth_location, parent_message)
+		self.add_to_journal(self.baby, birth_journal_entry)
+		self.baby.events.append(self)
 		
 		if mother: 
 			self.add_to_journal(mother, "Had child with %s. Decided to name baby, %s"%(self.baby.father.name, self.baby.name))
+			self.mother.events.append(self)
 		if father: 
 			self.add_to_journal(father, "Had child with %s. Decided to name baby, %s"%(self.baby.mother.name, self.baby.name))
-
+			self.father.events.append(self)
 
 
 
@@ -125,6 +127,7 @@ class Birth(Event):
 			else:
 				self.baby.last_name = names.get_last_name()
 
+
 	# First Name
 	@property
 	def first_name(self):
@@ -153,7 +156,7 @@ class Birth(Event):
 	@gender.setter
 	def gender(self, gender=None):
 		"""allows the gender to be set only during birth"""
-		if not hasattr(self.baby, 'gender'): 
+		if not hasattr(self.baby, 'gender') or self.baby.gender == None: 
 			self.baby.gender = random.choice(POSSIBLE_GENDERS)
 		
 		# 	self.baby.gender = self.baby.gender
@@ -186,7 +189,70 @@ class Birth(Event):
 			self.baby.sexual_preference = 'heterosexual'
 
 
+class Marriage(Event):
+	""" Marriage Event
+		Marries two people, and changes their last names (sometimes) accordingly 
+		Also adds a marriage event to the person's journal. 
+		Can also decide on a child policy during the wedding? 
+	""" 
+	def __init__(self, date, person, significant_other):
+		super(Marriage, self).__init__(date)
+		self.person = person
+		self.significant_other = significant_other
+		self.marriage()
+		self.change_last_name()
+		self.children_from_this_marriage = []
 
+
+	def marriage(self):
+		"""Get married
+		Again, this is an exception case since otherwise many social relationship factors are involved
+		""" 
+		self.person.update_relationship(self.significant_other, "Spouse")
+		self.significant_other.update_relationship(self.person, "Spouse")
+
+		p_journal_message = "Got married to %s."%(self.significant_other.name)
+		self.add_to_journal(self.person, p_journal_message)
+		s_journal_message = "Got married to %s."%(self.person.name)
+		self.add_to_journal(self.significant_other, s_journal_message)
+		
+		self.person.spouse = self.significant_other
+		self.significant_other.spouse = self.person
+
+
+	def change_last_name(self):
+		s_journal_message = ""
+		p_journal_message = ""
+		# Probability of changing last name
+		if random.random() >= 0.295:
+			if self.person.gender == 'male': 
+				self.significant_other.last_name = self.person.last_name
+				s_journal_message = "I took his last name. I'm now %s"%(self.significant_other.last_name)
+			elif self.significant_other.gender == 'male': 
+				self.person.last_name = self.significant_other.last_name
+				p_journal_message = "I took his last name. I'm now %s"%(self.person.last_name)
+			else:
+				self.significant_other.last_name = self.person.last_name
+				s_journal_message = "I took her last name. I'm now %s"%(self.significant_other.last_name)
+			
+		# This is probably not true. Need to check stats and rules?
+		elif random.random() >= 0.295:
+			couple = [self.person, self.significant_other]
+			random.shuffle(couple)
+			new_last_name = "%s-%s"%(couple[0].last_name,couple[1].last_name)
+			self.person.last_name = new_last_name
+			self.significant_other.last_name = new_last_name
+			s_journal_message = "We hyphenated our names! I'm now %s"%(self.significant_other.last_name)
+			p_journal_message = "We hyphenated our names! I'm now %s"%(self.person.last_name)
+		
+		else:
+			s_journal_message = "We decided to keep our names."
+			p_journal_message = "We decided to keep our names."
+
+		self.add_to_journal(self.person, p_journal_message)
+		self.add_to_journal(self.significant_other, s_journal_message)
+		self.person.events.append(self)
+		self.significant_other.events.append(self)
 
 
 class TheBeginning(Event):
@@ -242,6 +308,11 @@ class TheBeginning(Event):
 
 			if matches and random.random() >= 0.452:
 				significant_other = random.choice(matches)
+				# choose wedding date?
+				sim_date = self.world.current_date
+				wedding_date = sim_date.replace(days=random.choice(range(365)))
+				marriage = Marriage(wedding_date, person, significant_other)
+
 				# print "Couple! %s and %s"%(person.name, significant_other.name)
 				self.random_relocate(person, significant_other)
 
@@ -252,71 +323,26 @@ class TheBeginning(Event):
 	def random_relocate(self, person, significant_other=None):
 		"""Choose a random town to relocate to"""
 		new_town = self.world.random_location
-		house_num = new_town.find_unoccupied_home()
 		
 		# Change journal entry
 		if not significant_other: 
 			person.town.remove_citizen(person)
-			new_town.add_citizen(person, house_num)
+			new_town.add_citizen(person)
 			journal_message = "Moving to %s. (singing) Alone again... naturally."%(new_town.name)
 			self.add_to_journal(person, journal_message)
 			# print person.name, journal_message
 
 		else:
-			self.random_marriage(person, significant_other)
+			house_num = new_town.find_unoccupied_home()
+			# self.random_marriage(person, significant_other)
+			# print "Moving person: ", person, significant_other, " to house: ", house_num
 			person.town.remove_citizen(person)
 			significant_other.town.remove_citizen(significant_other)
 			new_town.add_citizen(person, house_num)
 			new_town.add_citizen(significant_other, house_num)
-			journal_message = "Moving to a new town, %s. This place is spooky."%(new_town.name)
+			journal_message = "This place is spooky. Moving to a new town, %s."%(new_town.name)
 			self.add_to_journal(person, journal_message)
 			self.add_to_journal(significant_other, journal_message)
-	
-
-	def random_marriage(self, person, significant_other):
-		"""Randomly get married
-		Again, this is an exception case since otherwise many social relationship factors are involved
-		""" 
-		person.update_relationship(significant_other, "Spouse")
-
-		p_journal_message = "Got married to %s."%(significant_other.name)
-		s_journal_message = "Got married to %s."%(person.name)
-		person.spouse = significant_other
-		significant_other.spouse = person
-
-		# Probability of changing last name
-		if random.random() >= 0.295:
-			if person.gender == 'male': 
-				significant_other.last_name = person.last_name
-				s_journal_message = "%s. I took his last name. I'm now %s"%(s_journal_message, significant_other.last_name)
-			elif significant_other.gender == 'male': 
-				person.last_name = significant_other.last_name
-				p_journal_message = "%s. I took his last name. I'm now %s"%(p_journal_message, person.last_name)
-			else:
-				significant_other.last_name = person.last_name
-				s_journal_message = "%s. I took her last name. I'm now %s"%(s_journal_message, significant_other.last_name)
-			
-		# This is probably not true. Need to check stats and rules?
-		elif random.random() <= 0.295:
-			couple = [person, significant_other]
-			random.shuffle(couple)
-			new_last_name = "%s-%s"%(couple[0].last_name,couple[1].last_name)
-			person.last_name = new_last_name
-			significant_other.last_name = new_last_name
-			s_journal_message = "%s. We hyphenated our names! I'm now %s"%(s_journal_message, significant_other.last_name)
-			p_journal_message = "%s. We hyphenated our names! I'm now %s"%(p_journal_message, person.last_name)
-		
-		else:
-			s_journal_message = "%s. We decided to keep our names."%(s_journal_message)
-			p_journal_message = "%s. We decided to keep our names."%(p_journal_message)
-
-		self.add_to_journal(person, p_journal_message)
-		self.add_to_journal(significant_other, s_journal_message)
-
-		# return s_journal_message, p_journal_message
-
-		# print "New Family: ", person.name, significant_other.name
-
 
 
 

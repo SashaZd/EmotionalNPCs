@@ -98,11 +98,14 @@ class World(object):		# the sim will run for 50 years by default
 
 
 	def go_to_school(self):
-		# pass
-		for org in self.organizations:
-			if org.type == 'school': 
-				for student in org.current_members: 
-					student.simple_interaction(org.current_members, 'classmate_school')
+		for school in self.organizations['school']:
+			for student in school.current_members: 
+				student.simple_interaction(school.current_members, 'classmate_school')
+
+		# for org in self.organizations:
+		# 	if org.type == 'school': 
+				# for student in org.current_members: 
+				# 	student.simple_interaction(org.current_members, 'classmate_school')
 
 
 		# Only return children who just turned old enough to start attending school - i.e. no school assigned yet
@@ -161,29 +164,29 @@ class World(object):		# the sim will run for 50 years by default
 		return self.towns[random.choice(LOCATIONS)]
 
 
-	def make_schools(self):
-		"""Create Schools in the world
-		For every location in the world, add to the default schools at the location
-		"""
-		num_schools = random.choice(range(len(LOCATIONS), NUM_SCHOOLS_PER_LOCATION*len(LOCATIONS)))
-		school_names = random.sample(SCHOOL_NAMES, num_schools)
+	# def make_schools(self):
+	# 	"""Create Schools in the world
+	# 	For every location in the world, add to the default schools at the location
+	# 	"""
+	# 	num_schools = random.choice(range(len(LOCATIONS), NUM_SCHOOLS_PER_LOCATION*len(LOCATIONS)))
+	# 	school_names = random.sample(SCHOOL_NAMES, num_schools)
 
-		for loc in self.locations: 
-			# For now, at least one school per district
-			school = School(school_names.pop(), loc)
-			self.locations[loc]['schools'].append(school)
+	# 	for loc in self.locations: 
+	# 		# For now, at least one school per district
+	# 		school = School(school_names.pop(), loc)
+	# 		self.locations[loc]['schools'].append(school)
 
 		
-		while school_names: 
-			location = self.random_location
-			school = School(school_names.pop(), location)
-			self.locations [location]['schools'].append(school)
+	# 	while school_names: 
+	# 		location = self.random_location
+	# 		school = School(school_names.pop(), location)
+	# 		self.locations [location]['schools'].append(school)
 			
 
-	def make_hospitals(self):
-		for location in self.locations.keys():
-			first_hospital = Hospital("%s Hospital"%(location), location) 
-			self.locations[location]['hospitals'].append(first_hospital)
+	# def make_hospitals(self):
+	# 	for location in self.locations.keys():
+	# 		first_hospital = Hospital("%s Hospital"%(location), location) 
+	# 		self.locations[location]['hospitals'].append(first_hospital)
 
 
 	# Sample with replacement

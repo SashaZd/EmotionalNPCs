@@ -2,6 +2,7 @@ import random
 import names
 import itertools
 from configs import *
+from collections import defaultdict
 from Relationship import Relationship
 
 class Person(object):
@@ -22,6 +23,7 @@ class Person(object):
 		self.world = world
 
 		self.birthdate = None
+		self.gender = None
 
 		# Names and aliases for this person
 		# Known aliases, in case of change of name during wedding, etc to track family?
@@ -59,6 +61,8 @@ class Person(object):
 		self.flag_activate_university = False
 		self.university = None
 		self.past_universities = None
+
+		self.events = []
 
 		# Age for the person 
 		# age is set as a @property. If it changes, it triggers flags in the person.
@@ -258,6 +262,25 @@ class Person(object):
 			self.current_relationships[other] = relationship
 		
 		relationship.update_relationship(relationship_type, 1)
+
+
+	@property
+	def spouse(self):
+		return self.__spouse
+
+
+	@spouse.setter
+	def spouse(self, spouse=None):
+		""" Changing existing first name
+		If the person already has a name and is changing it, then add it to the aliases
+		"""
+
+		if not hasattr(self, 'spouse') and spouse: 
+			self.__spouse = spouse
+
+		elif spouse and spouse != self.spouse:
+			self.__spouse = spouse
+			print "some probability of having a baby"
 
 
 

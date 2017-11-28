@@ -1,15 +1,16 @@
 from configs import *
 import random
 import itertools
+from collections import defaultdict
 
 class Organization(object):
 	"""docstring for Organization
 	"""
 	o_id = itertools.count().next
-	current_organizations = []
-	past_organizations = []
+	current_organizations = defaultdict(list)
+	past_organizations = defaultdict(list)
 
-	def __init__(self, name, location=None, founding_date=None):
+	def __init__(self, name, type=None, location=None, founding_date=None):
 		super(Organization, self).__init__()
 		# self.arg = arg
 
@@ -18,8 +19,9 @@ class Organization(object):
 		# else:
 		# 	self.assign_name()
 		self.name = name
-		self.type = None
+		self.type = type
 		self.founding_date = founding_date
+		self.terminate_date = None
 
 		if location: 
 			self.location = location
@@ -29,10 +31,11 @@ class Organization(object):
 		self.current_members = set()
 		self.past_members = set()
 		self.days_of_meet = [0,1,2,3,4]  # Python dates start on Monday=0
-		self.terminate_date = None
-		self.employee = []
+		
+		# self.employees = []
 
-		self.__class__.current_organizations.append(self)
+		self.topics_of_interest = []
+		self.__class__.current_organizations[self.type].append(self)
 
 		"""
 		TODO: leave and join?
@@ -48,6 +51,17 @@ class Organization(object):
 		if person in self.current_members: 
 			self.past_members.add(person)
 			self.current_members.remove(person)
+
+
+	def calculate_avg_opinion(self, topic):
+		if topic in self.topics_of_interest: 
+			# for member in self.current_members: 
+			# 	pass
+			print "To Do"
+
+		else:
+			print "No opinion"
+
 
 
 	def __str__(self):
@@ -69,9 +83,17 @@ class School(Organization):
 	"""
 
 	def __init__(self, name, location=None, founding_date=None):
-		super(School, self).__init__(name, location, founding_date)
+		super(School, self).__init__(name, 'school', location, founding_date)
+		# self.type = 'school'
+		self.subjects = self.set_subjects_taught()
+
+	def set_subjects_taught(self):
+		"""Subjects taught by this school
+			Will be used to decide how much knowledge about a topic a person has
+			Can be used to form opinions
+		 """ 
+		return random.sample(SCHOOL_SUBJECTS, random.choice(range(4, len(SCHOOL_SUBJECTS))))
 		
-		self.type = 'school'
 		
 	def enroll_student(self, student):
 		self.add_member(student)
@@ -81,7 +103,6 @@ class School(Organization):
 			
 
 class University(Organization):
-
 	""" Grad schools
 	"""
 	def __init__(self,name):
@@ -103,8 +124,12 @@ class Club(Organization):
 
 	""" Interest Clubs
 	"""
-	def __init__(self,name):
+	def __init__(self, name, topics_of_interest=[]):
 		super(Club, self).__init__(name)
+
+		# Example: "sci-fi", "doctor who", "baking", etc
+		self.topics_of_interest = topics_of_interest
+
 		pass
 
 
@@ -114,7 +139,7 @@ class Hospital(Organization):
 		For babies to be born in 
 	""" 
 	def __init__(self, name, location, founding_date=None):
-		super(Hospital, self).__init__(name, location, founding_date)
+		super(Hospital, self).__init__(name, 'hospital', location, founding_date)
 		pass
 
 
