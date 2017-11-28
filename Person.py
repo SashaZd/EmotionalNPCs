@@ -4,6 +4,7 @@ import itertools
 from configs import *
 from collections import defaultdict
 from Relationship import Relationship
+# from Event import *
 
 class Person(object):
 	"""docstring for Person"""
@@ -22,7 +23,7 @@ class Person(object):
 		self.journal = []			# journal tracking all events in this Sim's life
 		self.world = world
 
-		self.birthdate = None
+		self.birthdate = world.current_date # set in the birth event
 		self.gender = None
 
 		# Names and aliases for this person
@@ -42,8 +43,9 @@ class Person(object):
 # 
 		# Sexually active at the age 18 
 		self.flag_sexually_active = False
-		self.partner = None
+		# self.partner = None
 		self.spouse = None
+		self.children = []
 
 		# Stores a list of Relationship objects, per person interacted with
 		# current_relationships = relationships currently in progress 
@@ -55,20 +57,26 @@ class Person(object):
 		# Academic details 
 		# ToDo: Represent the knowledge or degree topic? If related to society topic it could 
 		#  		represent an increase in the confidence of the topic 
+		self.flag_education = False  # if the person is too old, or not interested in school, don't check
 		self.flag_activate_school = False
 		self.school = None
 		self.past_schools = []
 		self.flag_activate_university = False
 		self.university = None
 		self.past_universities = None
-
 		self.events = []
 
 		# Age for the person 
 		# age is set as a @property. If it changes, it triggers flags in the person.
 		self.age = 0		# increments every year 
 
-		self.__class__.living_population.append(self)
+		# Knowledge: (fact numbers set) 
+		# Eg. science: [1,4,19,20]
+		self.knowledge = defaultdict(set)
+
+
+
+
 
 	
 	##################################################
@@ -93,18 +101,113 @@ class Person(object):
 			self.__age = age
 
 
-		if not self.town or (self.town == self.world.towns['Area 51']):
+		if self.town == self.world.towns['Area 51']:
 			return
 
+		# print "Otherwise here.... ", self.town
 		# Check if age is old enough for sexual partners
 		if not self.flag_sexually_active and self.age > 18: 
 			self.flag_sexually_active = True
 
-		if not self.flag_activate_school and self.age > 5: 
-			self.enroll_in_school()
+		if self.spouse and not self.pregnant and not self.spouse.pregnant: 
+			# print self, "Baby?"
+			self.consider_having_baby()
 
-		if self.flag_activate_school and self.age > 17: 
-			self.unenroll_from_school()
+		# if self.pregnant and self.world.current_date >= self.conception_date: 
+		# 	self.have_baby()
+
+		# Education Loops
+		if self.age > 5 and self.age <= 17:  # 17 because we've not simulated universities yet
+			self.flag_education = True
+		else:
+			self.flag_education = False
+
+		if self.flag_education: 
+			if self.age > 5 and self.age <= 17: 
+				self.enroll_in_school()
+
+			if self.flag_activate_school and self.age > 17: 
+				self.unenroll_from_school()
+		
+		
+
+		# if self.spouse and self.gender=="female" and not self.pregnant: 
+		# 	# homosexual couple, toss coin to see who gets pregnant? 
+		# 	# can be changed later
+		# 	if self.spouse.gender == "female" and not self.spouse.pregnant: 
+		# 		# should you get pregnant 
+		# 		if random.random() < 0.5: 
+					
+		# 				self.pregnant_in_marriage()
+		# 	else: 
+
+
+	##################################################
+	# Everything to do with Marriage and Babies
+	##################################################
+
+	@property
+	def pregnant(self):
+		if self.gender == "female": 
+			return self.__pregnant
+		else: 
+			return False
+
+
+	@pregnant.setter
+	def pregnant(self, pregnant):
+		if self.gender == "female": 
+			if pregnant: 
+				self.__pregnant = True
+				conception_date = self.world.current_date 
+				conception_date = conception_date.replace(days=270)
+				self.world.conception_dates[(conception_date.day, conception_date.month)].append(self)
+
+				journal_message = "Announcement - We're pregnant! ", self.name, self.spouse.name
+				self.journal.append(journal_message)
+				self.spouse.journal.append(journal_message)
+
+			else: 
+				self.__pregnant = pregnant
+
+
+	def have_baby(self):
+		from Event import Birth
+		born = Birth(self.world, self, self.spouse)
+		self.pregnant = False
+		self.children.append(born.baby)
+		born.baby.add_to_census()
+
+		# born.birthdate = birthdate
+
+	def get_pregnant(self):
+		self.pregnant = True
+		
+		
+
+	def consider_having_baby(self):
+		""" Some probability of having a baby 
+		"""
+		if self.children: 
+			n_kids = len([child for child in self.children if self in child.parents and self.spouse in child.parents])
+		else:
+			n_kids = 0
+
+		probability_of_a_child = 0.4 / (n_kids + 1)
+
+		# print self, "Thinking about a baby", probability_of_a_child
+
+		# Decided to have a child
+		if random.random() < probability_of_a_child: 
+			if self.gender == "female":
+				self.get_pregnant()
+
+			elif self.spouse.gender == "female":
+				self.spouse.get_pregnant()
+			
+			else:
+				print "Want to adopt, but no such feature in game yet"
+
 
 
 	##################################################
@@ -119,13 +222,13 @@ class Person(object):
 		self.flag_activate_school = True
 
 		# If there's a school
-		if self.world.locations[self.city]['schools']:
-			chosen_school = random.choice(self.world.locations[self.city]['schools'])
+		if self.town.schools:
+			chosen_school = random.choice(self.town.schools)
 			chosen_school.enroll_student(self)
 			self.current_school = chosen_school
 		
 		else: 
-			print "%s district has no school to enroll in. Relocate?"%(self.city)
+			print "%s district has no school to enroll in. Relocate?"%(self.town)
 
 
 	def unenroll_from_school(self):
@@ -141,18 +244,28 @@ class Person(object):
 	##################################################
 	
 	# To Do
-	def relocate_home(self, town=None, with_household=None):
+	def relocate_home(self, town=None, house_number=None, with_household=[]):
 		"""Relocation of Home
 			Used to change the location of the Person's home 
 			If the actual address changes - compare house_number and city only? 
 			@param tuple address : (house_number, city)
 			@param Person[] with_household : True (household moving with person) | False (moving out alone)
 		""" 
+
+		# If moving to another house in the same town
+		# if town == self.town and house_number != self.house_number: 
+		# 	clear
+
+
+		# self.past_addresses.append("%s, %s"%(self.house_number, self.town.name))
+
 		# if address != self.address: 
 		# 	self.past_addresses.append(self.current_home)
 		
-		if self.town != town:
-			town.find_unoccupied_home()
+		# if self.town != town:
+		# 	town.find_unoccupied_home()
+
+		pass
 
 
 
@@ -264,23 +377,22 @@ class Person(object):
 		relationship.update_relationship(relationship_type, 1)
 
 
-	@property
-	def spouse(self):
-		return self.__spouse
+	# @property
+	# def spouse(self):
+	# 	return self.__spouse
 
 
-	@spouse.setter
-	def spouse(self, spouse=None):
-		""" Changing existing first name
-		If the person already has a name and is changing it, then add it to the aliases
-		"""
+	# @spouse.setter
+	# def spouse(self, spouse=None):
+	# 	""" Changing existing first name
+	# 	If the person already has a name and is changing it, then add it to the aliases
+	# 	"""
 
-		if not hasattr(self, 'spouse') and spouse: 
-			self.__spouse = spouse
+	# 	if not hasattr(self, 'spouse') and spouse: 
+	# 		self.__spouse = spouse
 
-		elif spouse and spouse != self.spouse:
-			self.__spouse = spouse
-			print "some probability of having a baby"
+	# 	elif spouse and spouse != self.spouse:
+	# 		self.__spouse = spouse
 
 
 
@@ -298,6 +410,10 @@ class Person(object):
 		# 		"\n  father: %s")%(self.name, self.id, self.birthdate, self.age, self.gender, self.mother, self.father)
 		# print person
 		return self.__dict__
+
+	def add_to_census(self):
+		self.__class__.living_population.append(self)
+		self.world.birthdays = [self.birthdate.day, self.birthdate.month, self]
 
 
 	def __str__(self):

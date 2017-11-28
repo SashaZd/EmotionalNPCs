@@ -9,7 +9,7 @@ from Person import Person
 from Organization import *
 from Event import *
 from Town import *
-
+from Knowledge import *
 
 
 class World(object):		# the sim will run for 50 years by default
@@ -25,6 +25,7 @@ class World(object):		# the sim will run for 50 years by default
 		# self.deceased_population = []
 		self.person_id = 0
 		self.birthdays = None
+		self.conception_dates = defaultdict(list)
 		# Time 
 		self.until_year=until_year
 
@@ -35,10 +36,10 @@ class World(object):		# the sim will run for 50 years by default
 	def setup_world(self):
 		""" Setup initial locations, organizations, etc of the world """
 		
-		# currently a city, needs to be extended further
-		self.locations = {key:{
-			'schools':[], 'universities':[], 'hospitals':[]
-		} for key in LOCATIONS}
+		# # currently a city, needs to be extended further
+		# self.locations = {key:{
+		# 	'schools':[], 'universities':[], 'hospitals':[]
+		# } for key in LOCATIONS}
 
 		# Citizens will be compulsarily affiliated with a geographic location
 		# Other groups are optional. But if you leave one location, you must move to another
@@ -53,21 +54,9 @@ class World(object):		# the sim will run for 50 years by default
 		self.towns["Area 51"] = Town("Area 51", self)
 		self.towns["Area 51"].area_51_setup()
 
+		self.initilize_knowledge()
 
-		# self.make_hospitals()
-
-		# # For every day of the week, link all currently running organizations that meet on that day
-		# # self.days_of_week = [key:set() for key in range(0)]
-
-		# # Make a list of all schools
-		# self.make_schools()
-		# # self.make_universities()
-
-		# self.settler_babies() 	# start with 100 people in the town as babies. No parents, inheritence.
-								# Their initial interactions will form the basis for relationships
-
-		# actions to perform on various days of week
-		# self.days_of_week = defaultdict[list]
+		
 
 
 	def do_things(self):
@@ -76,25 +65,20 @@ class World(object):		# the sim will run for 50 years by default
 			World.current_date = World.current_date.replace(days=1)
 			day, month = World.current_date.day, World.current_date.month
 			weekday = World.current_date.weekday() # returns day of the week, 0-6 0=Monday
+
 			self.age_living_population(day, month)
+			self.conceive_babies(day, month)
 
 			if weekday < 4: 
 				self.go_to_school()
 
-			# print "Day: ", self.env.now
-
-
-			# Do things here with some probability based on sim_date
-			# if random.random() <= 0.01:
-			# 	baby = Person()
-			# 	self.birthdays = [day, month, baby]
-			# 	born.append(baby)
-
-			# if sim_date.month==12 and sim_date.day == 31: 
-			# 	print "Year: ", sim_date.format('YYYY'), " | Children born: ", len(born)
-			# 	self.living_population.extend(born)
-			# 	born = []
 			yield self.env.timeout(1)
+
+
+	def conceive_babies(self, day, month):
+		if (day,month) in self.conception_dates:
+			for mother in self.conception_dates[(day,month)]: 
+				mother.have_baby()
 
 
 	def go_to_school(self):
@@ -124,8 +108,6 @@ class World(object):		# the sim will run for 50 years by default
 	# 	# pass
 	# 	pass
 		
-
-
 	def age_living_population(self, day, month):
 		if hasattr(self, 'birthdays'):
 			if (day, month) in self.birthdays.keys(): 
@@ -136,7 +118,10 @@ class World(object):		# the sim will run for 50 years by default
 
 	@property
 	def birthdays(self):
+		# if not hasattr(self, 'birthdays'): 
+		# 	self.__birthdays = defaultdict(list)
 		return self.__birthdays
+
 
 	@birthdays.setter
 	def birthdays(self, new_birth=None):
@@ -164,29 +149,8 @@ class World(object):		# the sim will run for 50 years by default
 		return self.towns[random.choice(LOCATIONS)]
 
 
-	# def make_schools(self):
-	# 	"""Create Schools in the world
-	# 	For every location in the world, add to the default schools at the location
-	# 	"""
-	# 	num_schools = random.choice(range(len(LOCATIONS), NUM_SCHOOLS_PER_LOCATION*len(LOCATIONS)))
-	# 	school_names = random.sample(SCHOOL_NAMES, num_schools)
-
-	# 	for loc in self.locations: 
-	# 		# For now, at least one school per district
-	# 		school = School(school_names.pop(), loc)
-	# 		self.locations[loc]['schools'].append(school)
-
-		
-	# 	while school_names: 
-	# 		location = self.random_location
-	# 		school = School(school_names.pop(), location)
-	# 		self.locations [location]['schools'].append(school)
-			
-
-	# def make_hospitals(self):
-	# 	for location in self.locations.keys():
-	# 		first_hospital = Hospital("%s Hospital"%(location), location) 
-	# 		self.locations[location]['hospitals'].append(first_hospital)
+	def initilize_knowledge(self):
+		self.knowledge = Knowledge()
 
 
 	# Sample with replacement

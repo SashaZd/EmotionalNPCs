@@ -13,74 +13,80 @@ class Event(object):
 
 	e_id = itertools.count().next
 
-	def __init__(self, date, owner=None):
+	# participants = {NPC_name: "mother", NPC_name: "father", NPC_name: "baby"}
+	def __init__(self, date, participants=[]):
 		super(Event, self).__init__()
 		self.id = Event.e_id()
 		self.date = date
+		self.participants = participants
 
-
-	def set_owner(self, owner):
-		self.owner = owner
-
+	def add_participant(self, participant):
+		self.participants.append(participant)
+		if self not in participant.events: 
+			participant.events.append(self)
 
 	def add_to_journal(self, owner, message):
+		if owner not in self.participants: 
+			self.add_participant(owner)
+
 		owner.journal.append("%s - %s "%(self.date.format('DD-MM-YYYY'), message))
-				
+			
 
 class Birth(Event):
 	"""docstring for Birth"""
-	def __init__(self, world, mother=None, father=None):
+	def __init__(self, world, mother=None, father=None, date=None):
 		super(Birth, self).__init__(world.current_date)
 		self.world = world
 		self.baby = Person(world, self)
 		self.baby.father = father
 		self.baby.mother = mother
+
+		# because the biological parents may be different if adopted? 
+		self.baby.parents = [father, mother]
 		self.date = self.world.current_date
+
+		self.birthdate = date if date else self.world.current_date
+		
 		self.gender = None
 
 		self._set_baby_name()
 		self.set_sexual_preference()
 		self.set_inherited_attr()
 
-		parent_message = ""
+		parent_message = []
 
 		if mother: 
 			self.baby.birth_location = mother.town
 			self.baby.town = mother.town
-			parent_message.append("My mother is %s."%(self.baby.mother.name))
+			self.baby.town.add_citizen(self.baby, mother.house_number)
+			parent_message.append("My mother is %s."%(mother.name))
+
+			# Mother's Journal
+			self.add_to_journal(mother, "Had child with %s. Decided to name baby, %s"%(father.name, self.baby.name))
+			mother.events.append(self)
+		
+
+		if father: 
+			parent_message.append("My father is %s"%(father.name))
+			
+			# Father's Journal
+			self.add_to_journal(father, "Had child with %s. Decided to name baby, %s"%(mother.name, self.baby.name))
+			father.events.append(self)
 
 		else:
 			self.baby.birth_location = self.world.towns['Area 51']
 			self.baby.town = self.world.towns['Area 51']
+			self.baby.town.add_citizen(self.baby)
 			# print self.baby.town
 
-		if father: 
-			parent_message.append("My father is %s"%(self.baby.father.name))
-		
-		self.baby.town.add_citizen(self.baby)
-
-
-		
 
 		if not mother and not father: 
-			parent_message = "I had no parents."
+			parent_message.append("I had no parents.")
 
-		# else: 
-			# if mother: 
-				
-			# if father:
-				
-		birth_journal_entry = "I was born in %s. %s"%(self.baby.birth_location, parent_message)
+		birth_journal_entry = "I was born in %s. %s"%(self.baby.birth_location, ''.join(parent_message))
 		self.add_to_journal(self.baby, birth_journal_entry)
 		self.baby.events.append(self)
-		
-		if mother: 
-			self.add_to_journal(mother, "Had child with %s. Decided to name baby, %s"%(self.baby.father.name, self.baby.name))
-			self.mother.events.append(self)
-		if father: 
-			self.add_to_journal(father, "Had child with %s. Decided to name baby, %s"%(self.baby.mother.name, self.baby.name))
-			self.father.events.append(self)
-
+	
 
 
 	# Birthdate: if unknown, set to current date
@@ -92,13 +98,17 @@ class Birth(Event):
 	def birthdate(self, birthdate=None):
 		if hasattr(self, 'birthdate'):
 			if birthdate != self.baby.birthdate: # changing the year to age? 
+				# Remove from older birthday list in the world (used for aging)
+				# old_birthday = (self.baby.birthdate.day,self.baby.birthdate.month)
+				# if old_birthday in self.world.birthdays and self.baby in self.world.birthdays[old_birthday]:
+				# 	self.world.birthdays[old_birthday].remove(self.baby)
 				self.baby.birthdate = birthdate
+		
 		elif birthdate: 
 			self.baby.birthdate = birthdate		# take the date from the simulation? 
 
 		self.baby.age = abs(self.baby.birthdate - self.world.current_date).days/365
 		self.date = birthdate
-
 
 	# Everything reg. the Name
 
@@ -158,6 +168,9 @@ class Birth(Event):
 		"""allows the gender to be set only during birth"""
 		if not hasattr(self.baby, 'gender') or self.baby.gender == None: 
 			self.baby.gender = random.choice(POSSIBLE_GENDERS)
+
+		if self.baby.gender == "female":
+			self.baby.pregnant = False
 		
 		# 	self.baby.gender = self.baby.gender
 
@@ -218,6 +231,9 @@ class Marriage(Event):
 		
 		self.person.spouse = self.significant_other
 		self.significant_other.spouse = self.person
+
+		# self.person.partner = self.significant_other
+		# self.significant_other.partner = self.person
 
 
 	def change_last_name(self):
@@ -281,13 +297,14 @@ class TheBeginning(Event):
 		""" 
 		sim_date = self.world.current_date
 		for day in itertools.islice(self.world.sample_wr(range(365)),num):
-			birth = sim_date.replace(days=day)
+			birthdate = sim_date.replace(days=day)
 			_year = 20 + random.choice(range(10))
-			birthdate = sim_date.replace(years=-_year)
-			born = Birth(self.world)
-
+			birthdate = birthdate.replace(years=-_year)
+			born = Birth(self.world, None, None, birthdate)
 			# Change the birthdate of the baby by a few years since he/she is a settler and an adult
-			born.birthdate = birthdate
+			# born.birthdate = birthdate
+			# print born.baby
+			# self.baby.cooked()
 
 
 	def random_match_couples(self):
@@ -297,6 +314,7 @@ class TheBeginning(Event):
 		
 		while self.world.towns['Area 51'].citizens:
 			person = self.world.towns['Area 51'].random_citizen
+			person.add_to_census()
 
 			matches = [match for match in self.world.towns['Area 51'].citizens if abs(match.age-person.age) <= 5]
 			matches.remove(person)
@@ -330,21 +348,31 @@ class TheBeginning(Event):
 			new_town.add_citizen(person)
 			journal_message = "Moving to %s. (singing) Alone again... naturally."%(new_town.name)
 			self.add_to_journal(person, journal_message)
-			# print person.name, journal_message
+			# person.cooked()
 
 		else:
-			house_num = new_town.find_unoccupied_home()
-			# self.random_marriage(person, significant_other)
-			# print "Moving person: ", person, significant_other, " to house: ", house_num
+			house_number = new_town.find_unoccupied_home()
 			person.town.remove_citizen(person)
 			significant_other.town.remove_citizen(significant_other)
-			new_town.add_citizen(person, house_num)
-			new_town.add_citizen(significant_other, house_num)
+			new_town.add_citizen(person, house_number)
+			new_town.add_citizen(significant_other, house_number)
 			journal_message = "This place is spooky. Moving to a new town, %s."%(new_town.name)
 			self.add_to_journal(person, journal_message)
 			self.add_to_journal(significant_other, journal_message)
 
 
+			# person.cooked()
+			# significant_other.cooked()
+
+
+class Relocate(Event):
+	""" Marriage Event
+		Marries two people, and changes their last names (sometimes) accordingly 
+		Also adds a marriage event to the person's journal. 
+		Can also decide on a child policy during the wedding? 
+	""" 
+	def __init__(self, date, person, household=[]):
+		super(Relocate, self).__init__(date)
 
 
 

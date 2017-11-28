@@ -62,37 +62,40 @@ class Town(object):
 		For new families moving into town, or children moving out of parent's homes, etc
 		Todo: Don't build if town population limits have been reached? Very stretchy goal
 		""" 
-		empty_homes = [house_num for (house_num, occupation_details) in self.homes.items() if occupation_details['occupied']==False]
+		empty_homes = [house_number for (house_number, occupation_details) in self.homes.items() if occupation_details['occupied']==False]
 
 		# If there aren't any empty homes, build one
 		if not empty_homes: 
-			house_num = self.build_home()
-			self.homes[house_num] = {'occupied':False, 'family':None}
+			house_number = self.build_home()
+			self.homes[house_number] = {'occupied':False, 'family':None}
 		else: 
-			house_num = random.choice(empty_homes)
+			house_number = random.choice(empty_homes)
 
-		return house_num
+		return house_number
 
 
-	def add_citizen(self, person, house_num=None):
+	def add_citizen(self, person, house_number=None):
 		"""A new citizen moves into this town
 		Maybe for a job/school? 
 		""" 
 		# ToDo: Need to add birthdays for the person into the town instead of the world
-		if not house_num: 
-			house_num = self.find_unoccupied_home()
+		if not house_number: 
+			house_number = self.find_unoccupied_home()
 
 		self.citizens.append(person)
-		self.homes[house_num]['occupied'] = True
-		self.homes[house_num]['family'] = person.last_name
+		self.homes[house_number]['occupied'] = True
+		self.homes[house_number]['family'] = person.last_name
+
+		person.town = self.world.towns[self.name]
+		person.house_number = house_number
 
 
 	def remove_citizen(self, person):
 		# Move them out of the house so it's available for other people
 
 		if self.name != "Area 51":
-			self.homes[person.house_num]['occupied'] = False
-			self.homes[person.house_num]['family'] = None
+			self.homes[person.house_number]['occupied'] = False
+			self.homes[person.house_number]['family'] = None
 		self.citizens.remove(person)
 
 
@@ -139,7 +142,11 @@ class Town(object):
 		start = TheBeginning(self.world)
 
 
-	
+	def __str__(self):
+		return "%s"%(self.name)
+
+	def __repr__(self):
+		return "%s"%(self.name)
 
 
 
