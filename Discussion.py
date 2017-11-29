@@ -123,15 +123,16 @@ class Discussion(object):
 					th2 = th1
 				if (public_opinion_strength < th1):
 					pass
-				elif(public_opinion_strength >= th2):
+				elif(public_opinion_strength >= th2): # public conformity
 					attitude_difference = person['opinions']['attitude'] - self.avg_attitude
 					person['opinions']['attitude'] += 0.5 * attitude_difference
-				else:
+					person['opinions']['opinion'] = self.avg_opinion
+				else: # private acceptance
 					if(person['opinions']['unc'] <= 0.25):
 						person['opinions']['attitude'] = self.avg_attitude
 						person['opinions']['opinion'] = self.avg_opinion
 					else:
-						person['opinions']['attitude'] = self.avg_attitude
+						person['opinions']['opinion'] = self.avg_opinion
 
 			# num_of_people += 1
 
