@@ -354,6 +354,7 @@ class Person(object):
 
 	def simple_interaction(self, group, relationship_type):
 		"""Power up relationship with a person""" 
+		
 		for person in group: 
 			if person != self: 
 				self.update_relationship(person, relationship_type)
@@ -378,7 +379,18 @@ class Person(object):
 
 
 	def add_opinion_and_attitude(self, topic, fact, opinion_and_attitude):
-		print self, topic, fact, opinion_and_attitude
+		# Example -- 
+		# 'democrat': {
+		# 	'democrat_0': {
+		# 		'attitude': -0.42,
+		# 		'opinion': -0.81,
+		# 		'pri_thr': 0.5,
+		# 		'pub_thr': 0.6,
+		# 		'unc': 0.39
+		# 	}
+	 	# }
+		self.knowledge[topic][fact] = opinion_and_attitude
+		
 
 
 

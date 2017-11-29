@@ -44,8 +44,10 @@ class Organization(object):
 	def assign_name(self,newname):
 		self.name = newname
 
+
 	def add_member(self, person):
 		self.current_members.add(person)
+
 
 	def remove_member(self, person):
 		if person in self.current_members: 
@@ -54,13 +56,14 @@ class Organization(object):
 
 
 	def calculate_avg_opinion(self, topic):
-		if topic in self.topics_of_interest: 
-			# for member in self.current_members: 
-			# 	pass
-			print "To Do"
+		# if topic in self.topics_of_interest: 
+		# 	# for member in self.current_members: 
+		# 	# 	pass
+		# 	print "To Do"
 
-		else:
-			print "No opinion"
+		# else:
+		# 	print "No opinion"
+		pass
 
 
 

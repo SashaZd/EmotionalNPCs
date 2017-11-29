@@ -24,7 +24,7 @@ class Knowledge(object):
 	    opinion = round(random.uniform(attitude-0.5, attitude+0.5), 2)
 	    opinion = -1.0 if opinion < -1.0 else opinion
 	    opinion = 1.0 if opinion > 1.0 else opinion
-	    unc = abs(attitude - opinion)
+	    unc = round(abs(attitude - opinion), 2)
 	    pub_thr = 0.6
 	    pri_thr = round(random.uniform(0.0, 1.0), 2)
 	    

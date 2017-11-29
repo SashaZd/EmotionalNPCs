@@ -217,11 +217,7 @@ class Birth(Event):
 
 				for fact in facts_known: 
 					self.baby.add_opinion_and_attitude(bias, fact, self.world.knowledge.create_original_opinion())
-				# self.baby.knowledge[bias] = facts_known
-
-
-		# if mother and father: 
-		# 	for bias in 
+					
 
 
 class Marriage(Event):
