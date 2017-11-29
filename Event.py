@@ -4,16 +4,13 @@ import random
 from configs import * 
 import names
 
+
 class Event(object):
 	"""parent class for all the Events
-		Currently just has a date and a id associated. 
-		Later can add the potential to create/allow new events based on rules? 
-		Preconditions? Postconditions? 
+	Allows ability to add details of the event to a journal maintained
 	"""
-
 	e_id = itertools.count().next
 
-	# participants = {NPC_name: "mother", NPC_name: "father", NPC_name: "baby"}
 	def __init__(self, date, participants=[]):
 		super(Event, self).__init__()
 		self.id = Event.e_id()
@@ -25,11 +22,11 @@ class Event(object):
 		if self not in participant.events: 
 			participant.events.append(self)
 
-	def add_to_journal(self, owner, message):
-		if owner not in self.participants: 
-			self.add_participant(owner)
+	def add_to_journal(self, participant, message):
+		if participant not in self.participants: 
+			self.add_participant(participant)
 
-		owner.journal.append("%s - %s "%(self.date.format('DD-MM-YYYY'), message))
+		participant.journal.append("%s - %s "%(self.date.format('DD-MM-YYYY'), message))
 			
 
 class Birth(Event):
@@ -88,8 +85,6 @@ class Birth(Event):
 		self.baby.events.append(self)
 
 		self.set_biases()
-	
-
 
 	# Birthdate: if unknown, set to current date
 	@property
@@ -113,7 +108,6 @@ class Birth(Event):
 		self.date = birthdate
 
 	# Everything reg. the Name
-
 	def _set_baby_name(self):
 		self.first_name = None
 		self.last_name = None
@@ -157,8 +151,6 @@ class Birth(Event):
 			self.baby.first_name = names.get_first_name(gender=self.baby.gender)
 		else:
 			self.baby.first_name = first_name
-		
-
 
 	# Everything reg. Gender
 	@property
@@ -205,6 +197,9 @@ class Birth(Event):
 
 
 	def set_biases(self):
+		""" Some inherent biases that you inherit
+		"""
+
 		if not self.baby.mother and not self.baby.father: 
 			biases = self.world.knowledge.biases.keys()
 			num_family_biases = random.randint(1, len(biases))
@@ -216,8 +211,7 @@ class Birth(Event):
 				facts_known = set(random.sample(facts, num_facts_known))
 
 				for fact in facts_known: 
-					self.baby.add_opinion_and_attitude(bias, fact, self.world.knowledge.create_original_opinion())
-					
+					self.baby.add_opinion_and_attitude(bias, fact, self.world.knowledge.create_random_opinion())
 
 
 class Marriage(Event):
@@ -233,7 +227,6 @@ class Marriage(Event):
 		self.marriage()
 		self.change_last_name()
 		self.children_from_this_marriage = []
-
 
 	def marriage(self):
 		"""Get married
@@ -252,7 +245,6 @@ class Marriage(Event):
 
 		# self.person.partner = self.significant_other
 		# self.significant_other.partner = self.person
-
 
 	def change_last_name(self):
 		s_journal_message = ""
@@ -391,7 +383,6 @@ class Relocate(Event):
 	""" 
 	def __init__(self, date, person, household=[]):
 		super(Relocate, self).__init__(date)
-
 
 
 

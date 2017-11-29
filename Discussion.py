@@ -74,14 +74,6 @@ class Discussion(object):
 		elif num_of_people > 7: 
 			return 0.2*num_of_people
 
-		# if(num_of_people == 1):
-		# 	return 0
-		# elif(num_of_people == 2):
-		# 	return 0.1
-		# elif(num_of_people == 3):
-		# 	return 0.3
-		# else:
-		# 	return 1
 
 	# calculate fb in public opinion strength		
 	# @property

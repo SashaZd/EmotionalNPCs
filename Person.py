@@ -40,7 +40,7 @@ class Person(object):
 
 		# Location tracks the actual location of the user in the world during a timestep
 		self.current_location = None
-# 
+
 		# Sexually active at the age 18 
 		self.flag_sexually_active = False
 		# self.partner = None
@@ -75,9 +75,6 @@ class Person(object):
 		self.knowledge = defaultdict(dict)
 
 
-
-
-
 	
 	##################################################
 	# Aging and everything that comes with growing old
@@ -110,7 +107,6 @@ class Person(object):
 			self.flag_sexually_active = True
 
 		if self.spouse and not self.pregnant and not self.spouse.pregnant: 
-			# print self, "Baby?"
 			self.consider_having_baby()
 
 		# if self.pregnant and self.world.current_date >= self.conception_date: 
@@ -153,38 +149,38 @@ class Person(object):
 		else: 
 			return False
 
-
 	@pregnant.setter
 	def pregnant(self, pregnant):
-		if self.gender == "female": 
-			if pregnant: 
-				self.__pregnant = True
-				conception_date = self.world.current_date 
-				conception_date = conception_date.replace(days=270)
-				self.world.conception_dates[(conception_date.day, conception_date.month)].append(self)
-
-				journal_message = "Announcement - We're pregnant! ", self.name, self.spouse.name
-				self.journal.append(journal_message)
-				self.spouse.journal.append(journal_message)
-
-			else: 
-				self.__pregnant = pregnant
-
+		if self.gender == "female":
+			self.__pregnant = pregnant
 
 	def have_baby(self):
+		old = len(self.children)
 		from Event import Birth
 		born = Birth(self.world, self, self.spouse)
 		self.pregnant = False
+		current_date = self.world.current_date
+
+		self.world.conception_dates[(current_date.day, current_date.month)].remove(self)
+
 		self.children.append(born.baby)
 		born.baby.add_to_census()
+		new = len(self.children)
 
 		# born.birthdate = birthdate
 
 	def get_pregnant(self):
 		self.pregnant = True
-		
-		
+		# print self.world.current_date, self, " is pregnant"
 
+		conception_date = self.world.current_date 
+		conception_date = conception_date.replace(days=270)
+		self.world.conception_dates[(conception_date.day, conception_date.month)].append(self)
+
+		journal_message = "Announcement - We're pregnant! ", self.name, self.spouse.name
+		self.journal.append(journal_message)
+		self.spouse.journal.append(journal_message)	
+		
 	def consider_having_baby(self):
 		""" Some probability of having a baby 
 		"""
@@ -193,7 +189,7 @@ class Person(object):
 		else:
 			n_kids = 0
 
-		probability_of_a_child = 0.4 / (n_kids + 1)
+		probability_of_a_child = 0.35 / (n_kids + 1)
 
 		# print self, "Thinking about a baby", probability_of_a_child
 
@@ -207,8 +203,6 @@ class Person(object):
 			
 			else:
 				print "Want to adopt, but no such feature in game yet"
-
-
 
 	##################################################
 	# Everything to do with Academia - Schools and Universities 
@@ -230,13 +224,11 @@ class Person(object):
 		else: 
 			print "%s district has no school to enroll in. Relocate?"%(self.town)
 
-
 	def unenroll_from_school(self):
 		self.flag_activate_school = False
 		self.current_school.unenroll_student(self)
 		self.past_schools.append(self.current_school)
 		self.current_school = None
-
 
 
 	##################################################
@@ -377,8 +369,33 @@ class Person(object):
 		
 		relationship.update_relationship(relationship_type, 1)
 
+	
+	##################################################
+	# Opinions and Attitudes
+	##################################################
+
+	def update_personal_representation_for_topic(self, topic):
+		tot_num_facts = len(self.knowledge[topic]['facts'])
+		avg_attitudes = sum([fact['attitude'] for fact in self.knowledge[topic]['facts']])/tot_num_facts
+		avg_opinions = sum([fact['opinion'] for fact in self.knowledge[topic]['facts']])/tot_num_facts
+
+		self.knowledge[topic]['representative_opinion'] = round(avg_opinions,2)
+		self.knowledge[topic]['representative_attitude'] = round(avg_attitudes,2)
+		self.knowledge[topic]['representative_unc'] = round(abs(avg_opinions - avg_attitudes),2)
+
 
 	def add_opinion_and_attitude(self, topic, fact, opinion_and_attitude):
+		if topic not in self.knowledge: 
+			self.knowledge[topic] = {
+				'facts': [],
+				'representative_opinion': None,
+				'representative_attitude': None,
+				'representative_unc': None
+			}
+
+		self.knowledge[topic]['facts'].append(opinion_and_attitude)
+		self.update_personal_representation_for_topic(topic)
+
 		# Example -- 
 		# 'democrat': {
 		# 	'democrat_0': {
@@ -389,7 +406,10 @@ class Person(object):
 		# 		'unc': 0.39
 		# 	}
 	 	# }
-		self.knowledge[topic][fact] = opinion_and_attitude
+		# self.knowledge[topic] = {
+		# 	'individual_facts' 
+		# }
+		# [fact] = opinion_and_attitude
 		
 
 

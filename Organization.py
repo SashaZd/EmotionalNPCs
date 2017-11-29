@@ -136,7 +136,6 @@ class Club(Organization):
 		pass
 
 
-
 class Hospital(Organization): 
 	"""
 		For babies to be born in 
