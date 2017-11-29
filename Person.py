@@ -72,7 +72,7 @@ class Person(object):
 
 		# Knowledge: (fact numbers set) 
 		# Eg. science: [1,4,19,20]
-		self.knowledge = defaultdict(set)
+		self.knowledge = defaultdict(dict)
 
 
 
@@ -377,22 +377,8 @@ class Person(object):
 		relationship.update_relationship(relationship_type, 1)
 
 
-	# @property
-	# def spouse(self):
-	# 	return self.__spouse
-
-
-	# @spouse.setter
-	# def spouse(self, spouse=None):
-	# 	""" Changing existing first name
-	# 	If the person already has a name and is changing it, then add it to the aliases
-	# 	"""
-
-	# 	if not hasattr(self, 'spouse') and spouse: 
-	# 		self.__spouse = spouse
-
-	# 	elif spouse and spouse != self.spouse:
-	# 		self.__spouse = spouse
+	def add_opinion_and_attitude(self, topic, fact, opinion_and_attitude):
+		print self, topic, fact, opinion_and_attitude
 
 
 

@@ -86,6 +86,8 @@ class Birth(Event):
 		birth_journal_entry = "I was born in %s. %s"%(self.baby.birth_location, ''.join(parent_message))
 		self.add_to_journal(self.baby, birth_journal_entry)
 		self.baby.events.append(self)
+
+		self.set_biases()
 	
 
 
@@ -200,6 +202,26 @@ class Birth(Event):
 			self.baby.sexual_preference = 'bisexual'
 		else: 
 			self.baby.sexual_preference = 'heterosexual'
+
+
+	def set_biases(self):
+		if not self.baby.mother and not self.baby.father: 
+			biases = self.world.knowledge.biases.keys()
+			num_family_biases = random.randint(1, len(biases))
+			family_biases = random.sample(biases, num_family_biases)
+
+			for bias in family_biases: 
+				facts = self.world.knowledge.biases[bias]
+				num_facts_known = random.randint(1, len(facts))
+				facts_known = set(random.sample(facts, num_facts_known))
+
+				for fact in facts_known: 
+					self.baby.add_opinion_and_attitude(bias, fact, self.world.knowledge.create_original_opinion())
+				# self.baby.knowledge[bias] = facts_known
+
+
+		# if mother and father: 
+		# 	for bias in 
 
 
 class Marriage(Event):

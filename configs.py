@@ -10,27 +10,27 @@
 
 TOPICS = {
 	# Politics 			- DEMOCRAT --> REPUBLICAN 
-	'democrat': {'tags' : ['politics']},
+	'democrat': {'tags': ['politics', 'social science'], 'num_facts': 15},
 	
-	# heterosexuality 	- PRO (supports only this) --- Other (Supports homosexuality/bisexuality)
-	'heterosexuality': {'tags' : ['social']},
+	# # heterosexuality 	- PRO (supports only this) --- Other (Supports homosexuality/bisexuality)
+	# 'heterosexuality': {'tags' : ['social']},
 	
 	# VACCINATIONS - PRO ---> ANTI
-	'vaccination': {'tags' : ['health', 'politics']},
+	'vaccination': {'tags': ['health'], 'num_facts': 10}
 
-	# Abortion - PRO ---> ANTI  
-	'abortion': {'tags' : ['health', 'politics']},  
+	# # Abortion - PRO ---> ANTI  
+	# 'abortion': {'tags' : ['politics']},  
 
-	# Death Penalty	- Pro ---> Anti    
-	'death_penalty': {'tags' : ['politics']}
+	# # Death Penalty	- Pro ---> Anti    
+	# 'death_penalty': {'tags' : ['politics']}
 }
 
 SCHOOL_SUBJECTS = {
-	'science': {'num_facts': 20, 'tags':['vaccination', 'abortion', 'physics', 'chemistry', 'biology']},
-	'sex_ed': {'num_facts': 4, 'tags':['abortion', 'heterosexuality', 'health']},
+	'science': {'num_facts': 20, 'tags':['vaccination']},  # , 'abortion', 'physics', 'chemistry', 'biology'
+	'sex_ed': {'num_facts': 10, 'tags':['abortion', 'heterosexuality']},
 	'mathematics': {'num_facts': 14, 'tags':[]},
 	'art': {'num_facts': 10, 'tags':['painting', 'photography', 'dancing', 'music', 'theatre']},
-	'history': {'num_facts': 7, 'tags':['politics', 'social']},
+	'history': {'num_facts': 15, 'tags':['politics', 'social science']},
 	'literature': {'num_facts': 13},
 	'geography': {'num_facts': 11, 'tags':['social']},
 	'commerce': {'num_facts': 19, 'tags':['finance']},
@@ -39,11 +39,11 @@ SCHOOL_SUBJECTS = {
 }
 
 
-STARTING_SOCIETIES = [
-	{'democrat':0.2}, # Society #1
-	{'democrat':0.3}, # Society #2
-	{'democrat':0.9}  # Society #3
-]
+# STARTING_SOCIETIES = [
+# 	{'democrat':0.2, 'vaccinations':0.2}, # Society #1
+# 	{'democrat':0.5, 'vaccinations':0.6}, # Society #2
+# 	{'democrat':0.9, 'vaccinations':0.8}  # Society #3
+# ]
 
 
 

@@ -43,6 +43,9 @@ class World(object):		# the sim will run for 50 years by default
 
 		# Citizens will be compulsarily affiliated with a geographic location
 		# Other groups are optional. But if you leave one location, you must move to another
+
+		self.initilize_knowledge()
+		
 		for location_name in LOCATIONS: 
 			town = Town(location_name, self)
 			self.towns[location_name] = town
@@ -54,7 +57,7 @@ class World(object):		# the sim will run for 50 years by default
 		self.towns["Area 51"] = Town("Area 51", self)
 		self.towns["Area 51"].area_51_setup()
 
-		self.initilize_knowledge()
+		
 
 		
 
@@ -151,6 +154,7 @@ class World(object):		# the sim will run for 50 years by default
 
 	def initilize_knowledge(self):
 		self.knowledge = Knowledge()
+		# print "World knowledge: ", self.knowledge.biases
 
 
 	# Sample with replacement
