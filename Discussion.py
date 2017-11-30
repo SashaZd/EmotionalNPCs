@@ -60,28 +60,25 @@ class Discussion(object):
 	# @property
 	def calculate_fa(self):
 		num_of_people = len(self.group)
-		
+		if(num_of_people <= 1):
+			return 0
+		elif(num_of_people >= 10):
+			return 1
+		else:
+			return (num_of_people/10)
+
 		# Check formula??
-		if num_of_people >=1 and num_of_people <= 3: 
-			return 0.1*num_of_people - 0.1
+		#if num_of_people >=1 and num_of_people <= 2: 
+		#	return 0.1*num_of_people - 0.1
 
-		elif num_of_people > 3 and num_of_people <= 5: 
-			return 0.2*num_of_people - 0.3
+		#elif num_of_people > 2 and num_of_people <= 4: 
+		#	return 0.2*num_of_people - 0.3
 
-		elif num_of_people > 5 and num_of_people <= 7: 
-			return 0.5*num_of_people - 1.2
+		#elif num_of_people > 4 and num_of_people <= 6: 
+		#	return 0.5*num_of_people - 1.2
 
-		elif num_of_people > 7: 
-			return 0.2*num_of_people
-
-		# if(num_of_people == 1):
-		# 	return 0
-		# elif(num_of_people == 2):
-		# 	return 0.1
-		# elif(num_of_people == 3):
-		# 	return 0.3
-		# else:
-		# 	return 1
+		#elif num_of_people >= 7: 
+		#	return 1
 
 	# calculate fb in public opinion strength		
 	# @property
@@ -101,8 +98,12 @@ class Discussion(object):
 	# update the attitude & opinion based on unc value
 	# @property
 	def update_attitude_opinion(self):
-		num_of_people = 0
+		f_a = self.calculate_fa()
+		f_b = self.calculate_fb()
+		public_threshhold = 0.6
 		for person in self.group:
+			attitude_difference = self.avg_attitude - person['opinions']['attitude']  
+			opinion_difference = self.avg_opinion - person['opinions']['opinion']  
 			# if unc is larger than 0.5, the person will follow the group 
 			# update the person's opinion & attitude by the mean of the group
 			if(person['opinions']['unc'] >= 0.5):
@@ -110,13 +111,9 @@ class Discussion(object):
 				person['opinions']['opinion'] = self.avg_opinion
 			else:
 				self.personal_opinion = person['opinions']['opinion']
-				f_a = self.calculate_fa()
-				f_b = self.calculate_fb()
 				f_c = self.calculate_fc()
 				public_opinion_strength = (f_a+f_b+f_c)/3
-				public_threshhold = 0.6
 				th1 = 1 - person['opinions']['unc']
-				th2 = 0
 				if(th1 < public_threshhold):
 					th2 = public_threshhold
 				else:
@@ -124,8 +121,7 @@ class Discussion(object):
 				if (public_opinion_strength < th1):
 					pass
 				elif(public_opinion_strength >= th2): # public conformity
-					attitude_difference = person['opinions']['attitude'] - self.avg_attitude
-					person['opinions']['attitude'] += 0.5 * attitude_difference
+					person['opinions']['attitude'] += 0.25 * attitude_difference
 					person['opinions']['opinion'] = self.avg_opinion
 				else: # private acceptance
 					if(person['opinions']['unc'] <= 0.25):
@@ -133,6 +129,7 @@ class Discussion(object):
 						person['opinions']['opinion'] = self.avg_opinion
 					else:
 						person['opinions']['opinion'] = self.avg_opinion
+					
 
 			# num_of_people += 1
 
