@@ -115,6 +115,7 @@ class Town(object):
 		if not school_name: 
 			school_name = random.choice(SCHOOL_NAMES)
 		school = School(school_name, self.name, self.world.current_date)
+		school.set_subjects_taught(self.world.knowledge.topics.values())
 		self.schools.append(school)
 		
 

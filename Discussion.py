@@ -26,7 +26,7 @@ class Discussion(object):
 	def group_attitude(self):
 		sum_of_attitude = 0
 		for person in self.group: 
-			sum_of_attitude += person['opinions']['attitude']
+			sum_of_attitude += person['opinion']['attitude']
 		avg_attitude = round(float(sum_of_attitude/len(self.group)),2)
 		return avg_attitude
 
@@ -42,7 +42,7 @@ class Discussion(object):
 	def group_opinion(self):
 		sum_of_opinion = 0
 		for person in self.group: 
-			sum_of_opinion += person['opinions']['opinion']
+			sum_of_opinion += person['opinion']['opinion']
 		avg_opinion = round(float(sum_of_opinion/len(self.group)),2)
 		return avg_opinion
 
@@ -51,7 +51,7 @@ class Discussion(object):
 	def group_unc(self):
 		sum_of_unc = 0
 		for person in self.group: 
-			sum_of_unc += person['opinions']['unc']
+			sum_of_unc += person['opinion']['unc']
 
 		avg_unc = round(float(sum_of_unc/len(self.group)),2)
 		return avg_unc
@@ -97,17 +97,17 @@ class Discussion(object):
 		for person in self.group:
 			# if unc is larger than 0.5, the person will follow the group 
 			# update the person's opinion & attitude by the mean of the group
-			if(person['opinions']['unc'] >= 0.5):
-				person['opinions']['attitude'] = self.avg_attitude
-				person['opinions']['opinion'] = self.avg_opinion
+			if(person['opinion']['unc'] >= 0.5):
+				person['opinion']['attitude'] = self.avg_attitude
+				person['opinion']['opinion'] = self.avg_opinion
 			else:
-				self.personal_opinion = person['opinions']['opinion']
+				self.personal_opinion = person['opinion']['opinion']
 				f_a = self.calculate_fa()
 				f_b = self.calculate_fb()
 				f_c = self.calculate_fc()
 				public_opinion_strength = (f_a+f_b+f_c)/3
 				public_threshhold = 0.6
-				th1 = 1 - person['opinions']['unc']
+				th1 = 1 - person['opinion']['unc']
 				th2 = 0
 				if(th1 < public_threshhold):
 					th2 = public_threshhold
@@ -116,15 +116,15 @@ class Discussion(object):
 				if (public_opinion_strength < th1):
 					pass
 				elif(public_opinion_strength >= th2): # public conformity
-					attitude_difference = person['opinions']['attitude'] - self.avg_attitude
-					person['opinions']['attitude'] += 0.5 * attitude_difference
-					person['opinions']['opinion'] = self.avg_opinion
+					attitude_difference = person['opinion']['attitude'] - self.avg_attitude
+					person['opinion']['attitude'] += 0.5 * attitude_difference
+					person['opinion']['opinion'] = self.avg_opinion
 				else: # private acceptance
-					if(person['opinions']['unc'] <= 0.25):
-						person['opinions']['attitude'] = self.avg_attitude
-						person['opinions']['opinion'] = self.avg_opinion
+					if(person['opinion']['unc'] <= 0.25):
+						person['opinion']['attitude'] = self.avg_attitude
+						person['opinion']['opinion'] = self.avg_opinion
 					else:
-						person['opinions']['opinion'] = self.avg_opinion
+						person['opinion']['opinion'] = self.avg_opinion
 
 			# num_of_people += 1
 
@@ -133,7 +133,7 @@ class Discussion(object):
 	def update_unc(self):
 		num_of_people = 0
 		for person in self.group:
-			person['opinions']['unc'] = fabs(person['opinions']['attitude']-person['opinions']['opinion']) 
+			person['opinion']['unc'] = fabs(person['opinion']['attitude']-person['opinion']['opinion']) 
 			# num_of_people += 1
 
 

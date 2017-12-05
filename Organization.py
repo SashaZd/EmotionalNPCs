@@ -1,6 +1,7 @@
 from configs import *
 import random
 import itertools
+from Knowledge import Knowledge
 from collections import defaultdict
 
 class Organization(object):
@@ -34,7 +35,7 @@ class Organization(object):
 		
 		# self.employees = []
 
-		self.topics_of_interest = []
+		self.knowledge = Knowledge()
 		self.__class__.current_organizations[self.type].append(self)
 
 		"""
@@ -66,7 +67,6 @@ class Organization(object):
 		pass
 
 
-
 	def __str__(self):
 		return "%s"%(self.name)
 
@@ -88,21 +88,48 @@ class School(Organization):
 	def __init__(self, name, location=None, founding_date=None):
 		super(School, self).__init__(name, 'school', location, founding_date)
 		# self.type = 'school'
-		self.subjects = self.set_subjects_taught()
+		self.subjects = {}
 
-	def set_subjects_taught(self):
+		# self.subjects = self.set_subjects_taught()
+
+	def set_subjects_taught(self, topics):
 		"""Subjects taught by this school
 			Will be used to decide how much knowledge about a topic a person has
 			Can be used to form opinions
-		 """ 
-		return random.sample(SCHOOL_SUBJECTS, random.choice(range(4, len(SCHOOL_SUBJECTS))))
+		""" 
+		topics_chosen = random.sample(topics, random.choice(range(4, len(topics))))
+		for topic in topics_chosen: 
+			self.knowledge.add_topic(topic)
 		
 		
 	def enroll_student(self, student):
 		self.add_member(student)
 
+
 	def unenroll_student(self, student):
 		self.remove_member(student)
+
+
+	def all_members_simulate_interaction(self):
+		# Updates relationship
+
+		if len(self.current_members) > 1: 
+			for student in self.current_members:
+				student.simple_interaction(self.current_members, 'classmate_school')
+
+
+
+	def teach_fact(self):
+		fact = self.knowledge.get_random_fact()
+		
+		# Currently assuming that teachers don't already have opinions 
+		if fact.opinion == None: 
+			fact.generate_random_opinion()
+
+		for student in self.current_members: 
+			student.knowledge.gain_knowledge(fact)
+			# print "Teaching %s: %s"%(student.name, fact)
+
 			
 
 class University(Organization):

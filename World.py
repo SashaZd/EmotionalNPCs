@@ -2,6 +2,7 @@ import simpy
 import arrow
 import random
 from configs import *
+from world_knowledge import *
 from collections import defaultdict
 import itertools
 
@@ -45,6 +46,7 @@ class World(object):		# the sim will run for 50 years by default
 		# Other groups are optional. But if you leave one location, you must move to another
 
 		self.initilize_knowledge()
+		print self.knowledge
 		
 		for location_name in LOCATIONS: 
 			town = Town(location_name, self)
@@ -60,8 +62,6 @@ class World(object):		# the sim will run for 50 years by default
 		
 
 		
-
-
 	def do_things(self):
 		born = []
 		while True: # self.env.now <= self.until_year:
@@ -86,8 +86,10 @@ class World(object):		# the sim will run for 50 years by default
 
 	def go_to_school(self):
 		for school in self.organizations['school']:
-			for student in school.current_members: 
-				student.simple_interaction(school.current_members, 'classmate_school')
+			school.teach_fact()
+			school.all_members_simulate_interaction()
+			
+
 
 		# for org in self.organizations:
 		# 	if org.type == 'school': 
@@ -154,7 +156,38 @@ class World(object):		# the sim will run for 50 years by default
 
 	def initilize_knowledge(self):
 		self.knowledge = Knowledge()
-		# print "World knowledge: ", self.knowledge.biases
+		self.init_topics_or_views(TOPICS, True)
+		self.init_topics_or_views(VIEWS, False)
+
+
+
+	def init_topics_or_views(self, topics, is_topics):
+
+		for topic_name, topic_info in topics.items(): 
+			topic = Topic(topic_name)
+			facts = []
+			# print topic_name
+
+			tags = topic_info['tags'] if 'tags' in topic_info else []
+
+			if 'facts' in topic_info: 
+				print "Need to add explicit facts..."
+				for fact in topic_info['facts']:
+					facts.append(fact)
+
+			elif 'num_facts' in topic_info: 
+				facts.extend(["%s_%s"%(topic_name, info) for info in range(topic_info['num_facts'])])
+
+			for fact_name in facts: 
+				fact = Fact(fact_name, topic_name, random.choice(tags) if tags else None)
+				topic.add_fact(fact)
+			
+			# Adds to a list of views that are not necessarily learnt in school
+			if not is_topics: 
+				pass
+				# self.knowledge.add_view(topic)
+			else:
+				self.knowledge.add_topic(topic)
 
 
 	# Sample with replacement

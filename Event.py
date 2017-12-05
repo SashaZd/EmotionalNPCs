@@ -1,5 +1,6 @@
 import itertools
 from Person import Person
+from Knowledge import Knowledge
 import random
 from configs import * 
 import names
@@ -84,7 +85,7 @@ class Birth(Event):
 		self.add_to_journal(self.baby, birth_journal_entry)
 		self.baby.events.append(self)
 
-		self.set_biases()
+		# self.set_biases()
 
 	# Birthdate: if unknown, set to current date
 	@property
@@ -199,20 +200,8 @@ class Birth(Event):
 	def set_biases(self):
 		""" Some inherent biases that you inherit
 		"""
-
-		if not self.baby.mother and not self.baby.father: 
-			biases = self.world.knowledge.biases.keys()
-			num_family_biases = random.randint(1, len(biases))
-			family_biases = random.sample(biases, num_family_biases)
-
-			for bias in family_biases: 
-				facts = self.world.knowledge.biases[bias]
-				num_facts_known = random.randint(1, len(facts))
-				facts_known = set(random.sample(facts, num_facts_known))
-
-				for fact in facts_known: 
-					self.baby.add_opinion_and_attitude(bias, fact, self.world.knowledge.create_random_opinion())
-
+		pass
+		
 
 class Marriage(Event):
 	""" Marriage Event
@@ -311,10 +300,32 @@ class TheBeginning(Event):
 			_year = 20 + random.choice(range(10))
 			birthdate = birthdate.replace(years=-_year)
 			born = Birth(self.world, None, None, birthdate)
+
+			self.set_initial_views(born.baby)
+
+
 			# Change the birthdate of the baby by a few years since he/she is a settler and an adult
 			# born.birthdate = birthdate
 			# print born.baby
 			# self.baby.cooked()
+
+	def set_initial_views(self, baby):
+		# for views in 
+		# if not self.baby.mother and not self.baby.father: 
+		# biases = [view for view in self.world.knowledge.views.values()]
+		# num_family_biases = random.randint(1, len(biases))
+		# family_biases = random.sample(biases, num_family_biases)
+
+		# baby.knowledge = Knowledge()
+
+		# for bias in family_biases: 
+		# 	facts = self.world.knowledge.biases[bias]
+		# 	num_facts_known = random.randint(1, len(facts))
+		# 	facts_known = set(random.sample(facts, num_facts_known))
+
+		# 	for fact in facts_known: 
+		# 		self.baby.add_opinion_and_attitude(bias, fact, self.world.knowledge.create_random_opinion())
+		pass
 
 
 	def random_match_couples(self):

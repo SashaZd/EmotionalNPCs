@@ -4,6 +4,7 @@ import itertools
 from configs import *
 from collections import defaultdict
 from Relationship import Relationship
+from Knowledge import Knowledge
 # from Event import *
 
 class Person(object):
@@ -72,7 +73,7 @@ class Person(object):
 
 		# Knowledge: (fact numbers set) 
 		# Eg. science: [1,4,19,20]
-		self.knowledge = defaultdict(dict)
+		self.knowledge = Knowledge()
 
 
 	
@@ -347,9 +348,17 @@ class Person(object):
 	def simple_interaction(self, group, relationship_type):
 		"""Power up relationship with a person""" 
 		
-		for person in group: 
-			if person != self: 
-				self.update_relationship(person, relationship_type)
+		group_to_interact_with = [person for person in group if person != self]
+
+		# Currently a 50% chance that you'll have a discussion with the group you're interacting with
+		# If you choose not to have a discussion, the NPCs still update their simple relationships with each other 
+		# i.e. social interaction only or discussion also
+		
+		self.knowledge.initiate_group_discussion(group)
+		for person in group_to_interact_with: 
+			self.update_relationship(person, relationship_type)
+
+
 			# if person.name not in self.current_relationships: 
 			# 	self.current_relationships[person.name] = {
 			# 	}
@@ -374,27 +383,31 @@ class Person(object):
 	# Opinions and Attitudes
 	##################################################
 
-	def update_personal_representation_for_topic(self, topic):
-		tot_num_facts = len(self.knowledge[topic]['facts'])
-		avg_attitudes = sum([fact['attitude'] for fact in self.knowledge[topic]['facts']])/tot_num_facts
-		avg_opinions = sum([fact['opinion'] for fact in self.knowledge[topic]['facts']])/tot_num_facts
-
-		self.knowledge[topic]['representative_opinion'] = round(avg_opinions,2)
-		self.knowledge[topic]['representative_attitude'] = round(avg_attitudes,2)
-		self.knowledge[topic]['representative_unc'] = round(abs(avg_opinions - avg_attitudes),2)
+	# def add_fact_to_knowledge(self, fact):
+	# 	if fact not in self.knowledge.
 
 
-	def add_opinion_and_attitude(self, topic, fact, opinion_and_attitude):
-		if topic not in self.knowledge: 
-			self.knowledge[topic] = {
-				'facts': [],
-				'representative_opinion': None,
-				'representative_attitude': None,
-				'representative_unc': None
-			}
+	# def update_personal_representation_for_topic(self, topic):
+	# 	tot_num_facts = len(self.knowledge[topic]['facts'])
+	# 	avg_attitudes = sum([fact['attitude'] for fact in self.knowledge[topic]['facts']])/tot_num_facts
+	# 	avg_opinions = sum([fact['opinion'] for fact in self.knowledge[topic]['facts']])/tot_num_facts
 
-		self.knowledge[topic]['facts'].append(opinion_and_attitude)
-		self.update_personal_representation_for_topic(topic)
+	# 	self.knowledge[topic]['representative_opinion'] = round(avg_opinions,2)
+	# 	self.knowledge[topic]['representative_attitude'] = round(avg_attitudes,2)
+	# 	self.knowledge[topic]['representative_unc'] = round(abs(avg_opinions - avg_attitudes),2)
+
+
+	# def add_opinion_and_attitude(self, topic, fact, opinion_and_attitude):
+	# 	if topic not in self.knowledge: 
+	# 		self.knowledge[topic] = {
+	# 			'facts': [],
+	# 			'representative_opinion': None,
+	# 			'representative_attitude': None,
+	# 			'representative_unc': None
+	# 		}
+
+	# 	self.knowledge[topic]['facts'].append(opinion_and_attitude)
+	# 	self.update_personal_representation_for_topic(topic)
 
 		# Example -- 
 		# 'democrat': {
