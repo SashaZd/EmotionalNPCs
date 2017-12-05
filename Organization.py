@@ -117,6 +117,14 @@ class School(Organization):
 			for student in self.current_members:
 				student.simple_interaction(self.current_members, 'classmate_school')
 
+			# Currently a 50% chance that you'll have a discussion with the group you're interacting with
+			# If you choose not to have a discussion, the NPCs still update their simple relationships with each other 
+			# i.e. social interaction only or discussion also
+
+			# Randomly choose one student that begins a discussion: 
+			discussion_leader = random.choice(list(self.current_members))
+			discussion_leader.initiate_group_discussion(self.current_members)
+
 
 
 	def teach_fact(self):

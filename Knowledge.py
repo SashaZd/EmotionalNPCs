@@ -1,9 +1,5 @@
 from copy import deepcopy
 import random
-from collections import Counter
-import itertools
-from Discussion import Discussion
-
 
 # 'science': {'num_facts':20, 'tags':['vaccination', 'abortion', 'health']},
 
@@ -15,26 +11,8 @@ class Knowledge(object):
 		self.views = {}
 		self.facts = {}
 
-
-	def initiate_group_discussion(self, group):
-		if random.random() < 0.05:
-			count = Counter(list(itertools.chain.from_iterable([person.knowledge.facts.keys() for person in group])))
-
-			# What facts are the most common
-			common_max = max(count.values())
-			(chosen_topic_of_discussion, frequency) = random.choice([fact for fact in count.most_common(common_max)])
-			print "Discussion of %s: Known to %s/%s people"%(chosen_topic_of_discussion, frequency, len(group))
-
-			group_opinions = []
-			for person in group: 
-				if chosen_topic_of_discussion in person.knowledge.facts:
-					group_opinions.append({
-						'person': person, 
-						'opinion': person.knowledge.facts[chosen_topic_of_discussion].get_opinion()
-					})
-
-			discussion = Discussion(group_opinions)
-			
+	# def change_knowledge_after_discussion(self, fact, opinions):
+	# 	pass
 
 
 	def gain_knowledge(self, fact):
@@ -44,29 +22,35 @@ class Knowledge(object):
 			new_topic = Topic(topic_name)
 			self.add_topic(new_topic)
 
-		if fact not in self.topics[topic_name].facts and fact not in self.facts: 
+
+		if fact.name not in self.facts: # or in self.topics[topic_name].facts:
 			# Never heard this information before. 
 			# Currently generates a random opinion of the fact if there's no opinion currently
 			# Todo: Add inheritence of parental bias
 			new_fact = deepcopy(fact)
 			new_fact.generate_random_opinion()
 			self.add_fact(new_fact)
+			# self.topics[topic_name].add_fact(new_fact)
+		
+		else:
+			self.add_fact(fact)
+
 
 
 
 		# 	# if not fact.name in self.facts: 
 		# 	# 	self.facts[fact.name] = new_fact
 
-		else: 
-		# 	# Todo: Need to update the fact/opinion's strength? if you continually learn about it 
-		# 	# i.e. opinion is reinforced over and over. Should cause a change 
-		# 	# Future update? Or could we just initialize a discussion with 1-2 people accordingly? 
-			pass
+		# else: 
+		# # 	# Todo: Need to update the fact/opinion's strength? if you continually learn about it 
+		# # 	# i.e. opinion is reinforced over and over. Should cause a change 
+		# # 	# Future update? Or could we just initialize a discussion with 1-2 people accordingly? 
+		# 	pass
 
 	
 	# Takes Fact instance, and adds it to current knowledge
 	def add_fact(self, fact):
-		if fact not in self.topics[fact.topic].facts:
+		if fact.name not in self.topics[fact.topic].facts:
 
 			# If hearing of the fact for the first time
 			# Currently generates a random opinion
@@ -83,26 +67,26 @@ class Knowledge(object):
 		if topic.name not in self.topics: 
 			self.topics[topic.name] = topic
 			
-			for fact in topic.facts:
-				if fact.name not in self.facts:  
+			for fact in topic.facts.values():
+				if fact not in self.facts:  
 					self.facts[fact.name] = fact
 				
-				else:
-					# Todo: Update existing information?
-					pass
+				# else:
+				# 	# Todo: Update existing information?
+				# 	pass
 
 
 	def add_view(self, topic):
 		if topic.name not in self.views: 
 			self.views[topic.name] = topic
 			
-			for fact in topic.facts:
-				if fact.name not in self.facts:  
+			for fact in topic.facts.values():
+				if fact not in self.facts:  
 					self.facts[fact.name] = fact
 				
-				else:
-					# Todo: Update existing information?
-					pass
+				# else:
+				# 	# Todo: Update existing information?
+				# 	pass
 
 	
 	def get_random_fact(self):
@@ -122,7 +106,7 @@ class Topic(object):
 	def __init__(self, name):
 		self.name = name
 		self.tags = [] # information['tags'] if 'tags' in information else []
-		self.facts = []
+		self.facts = {}
 
 		# if information: 
 		# 	self.add_facts(information)
@@ -134,8 +118,11 @@ class Topic(object):
 
 
 	def add_fact(self, fact):
-		self.add_tag(fact.tag)
-		self.facts.append(fact)
+		# if fact.name not in self.facts:
+		if fact.tag not in self.tags: 
+			self.add_tag(fact.tag)
+		
+		self.facts[fact.name] = fact
 
 
 	def get_associated_facts_known(self):
@@ -161,6 +148,7 @@ class Fact(object):
 		# By default self.opinion = None. 
 		# i.e. No opinion if you haven't heard of something before
 		self.opinion = opinion
+		self.historical_opinions = []
 
 	def get_opinion(self):
 		return self.opinion.get_opinion()
@@ -168,6 +156,17 @@ class Fact(object):
 	def generate_random_opinion(self):
 		self.opinion = Opinion()
 		self.opinion.generate_random_opinion()
+
+	
+	def update_opinion_after_discussion(self, new_opinion):
+		if (new_opinion['attitude'] != self.opinion.attitude) or (new_opinion['opinion'] != self.opinion.opinion) or (new_opinion['unc'] != self.opinion.unc): # or (new_opinion['pub_thr'] != self.opinion.pub_thr) or (new_opinion['pri_thr'] != self.opinion.pri_thr):
+			self.historical_opinions.append(deepcopy(self.opinion))
+			self.opinion = Opinion(new_opinion['attitude'], new_opinion['opinion'], new_opinion['unc'], new_opinion['pub_thr'], new_opinion['pri_thr']) 
+			return True
+		else:
+			return False
+
+
 
 	def __str__(self):
 		return "%s --> %s"%(self.name, self.opinion)
@@ -179,14 +178,13 @@ class Fact(object):
 
 class Opinion(object):
 	"""docstring for Fact"""
-	def __init__(self):
+	def __init__(self, attitude=None, opinion=None, unc=None, pub_thr=None, pri_thr=None):
 		super(Opinion, self).__init__()
-		
-		self.attitude = None		
-		self.opinion = None		
-		self.unc = None		
-		self.pub_thr = None		
-		self.pri_thr = None		
+		self.attitude = attitude		
+		self.opinion = opinion		
+		self.unc = unc		
+		self.pub_thr = pub_thr		
+		self.pri_thr = pri_thr		
 
 
 	def generate_random_opinion(self):
@@ -198,7 +196,7 @@ class Opinion(object):
 		"""
 		self.attitude = round(random.uniform(-1.0, 1.0), 2)
 		
-		opinion = round(random.uniform(self.attitude-0.5, self.attitude+0.5), 2)
+		opinion = random.uniform(self.attitude-0.7, self.attitude+0.7)
 		self.opinion = -1.0 if opinion < -1.0 else opinion
 		self.opinion = 1.0 if opinion > 1.0 else opinion
 		

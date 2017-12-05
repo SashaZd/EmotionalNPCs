@@ -3,8 +3,15 @@ import names
 import itertools
 from configs import *
 from collections import defaultdict
+from collections import Counter
+import itertools
+
+
 from Relationship import Relationship
 from Knowledge import Knowledge
+from Discussion import Discussion
+
+
 # from Event import *
 
 class Person(object):
@@ -350,11 +357,6 @@ class Person(object):
 		
 		group_to_interact_with = [person for person in group if person != self]
 
-		# Currently a 50% chance that you'll have a discussion with the group you're interacting with
-		# If you choose not to have a discussion, the NPCs still update their simple relationships with each other 
-		# i.e. social interaction only or discussion also
-		
-		self.knowledge.initiate_group_discussion(group)
 		for person in group_to_interact_with: 
 			self.update_relationship(person, relationship_type)
 
@@ -377,6 +379,53 @@ class Person(object):
 			self.current_relationships[other] = relationship
 		
 		relationship.update_relationship(relationship_type, 1)
+
+
+	def initiate_group_discussion(self, group):
+
+		if random.random() < 0.05:
+			count = Counter(list(itertools.chain.from_iterable([person.knowledge.facts.keys() for person in group])))
+
+			# What facts are the most common
+			common_max = max(count.values())
+			(chosen_topic_of_discussion, frequency) = random.choice([fact for fact in count.most_common(common_max)])
+			# print "Discussion of %s: Known to %s/%s people"%(chosen_topic_of_discussion, frequency, len(group))
+
+			group_opinions = []
+			for person in group: 
+				if chosen_topic_of_discussion in person.knowledge.facts:
+					group_opinions.append({
+						'person': person, 
+						'opinion': person.knowledge.facts[chosen_topic_of_discussion].get_opinion()
+					})
+
+			discussion = Discussion(group_opinions)
+
+			# Randomly simulate the duration of the conversation. 
+			# The longer the duration, the more the opinions and attitudes of the group may change 
+			discussion_duration = random.randint(1,10)
+
+			for minute in range(discussion_duration):
+				discussion.discuss()
+
+			for talker in discussion.group: 
+				conversationalists = [person.name for person in group if( (person.id != talker['person'].id) and (person.name != talker['person'].name))]
+				if len(conversationalists) > 1: 
+					talkers = ''.join(conversationalists[:-1]), "and", conversationalists[-1]
+				else:
+					talkers = ''.join(conversationalists)
+
+				journal_message = "I met %s. We discussed %s for %s minutes."%(''.join(talkers), chosen_topic_of_discussion, discussion_duration)
+				person.journal.append(journal_message)
+				person = talker['person']
+				opinions = talker['opinion']
+				changed_mind = person.knowledge.facts[chosen_topic_of_discussion].update_opinion_after_discussion(opinions)
+
+				if changed_mind: 
+					journal_message = "I changed my opinions about %s after the discussion."%(chosen_topic_of_discussion)
+					person.journal.append(journal_message)
+					print "For Demo check: ", person.census_index-1, person.name, chosen_topic_of_discussion
+
 
 	
 	##################################################
@@ -444,6 +493,7 @@ class Person(object):
 
 	def add_to_census(self):
 		self.__class__.living_population.append(self)
+		self.census_index = len(self.__class__.living_population)
 		self.world.birthdays = [self.birthdate.day, self.birthdate.month, self]
 
 
