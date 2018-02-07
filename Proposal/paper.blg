@@ -1,0 +1,59 @@
+This is BibTeX, Version 0.99d (TeX Live 2016)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: paper.aux
+White space in argument---line 3 of file paper.aux
+ : \citation{
+ :            young2004architecture}
+I'm skipping whatever remains of this command
+White space in argument---line 4 of file paper.aux
+ : \citation{
+ :            swartout2006toward}
+I'm skipping whatever remains of this command
+White space in argument---line 9 of file paper.aux
+ : \citation{
+ :            swartout2006toward}
+I'm skipping whatever remains of this command
+The style file: aaai.bst
+Database file #1: paper.bib
+You've used 17 entries,
+            2568 wiz_defined-function locations,
+            674 strings with 7760 characters,
+and the built_in function-call counts, 6897 in all, are:
+= -- 739
+> -- 270
+< -- 6
++ -- 93
+- -- 90
+* -- 506
+:= -- 1111
+add.period$ -- 89
+call.type$ -- 17
+change.case$ -- 112
+chr.to.int$ -- 17
+cite$ -- 17
+duplicate$ -- 283
+empty$ -- 505
+format.name$ -- 117
+if$ -- 1448
+int.to.chr$ -- 1
+int.to.str$ -- 0
+missing$ -- 15
+newline$ -- 108
+num.names$ -- 51
+pop$ -- 111
+preamble$ -- 1
+purify$ -- 129
+quote$ -- 0
+skip$ -- 232
+stack$ -- 0
+substring$ -- 301
+swap$ -- 75
+text.length$ -- 6
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 132
+warning$ -- 0
+while$ -- 55
+width$ -- 19
+write$ -- 241
+(There were 3 error messages)

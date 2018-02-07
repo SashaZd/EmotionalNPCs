@@ -1,0 +1,83 @@
+\def\year{2017}\relax
+%File: paper.tex
+\documentclass[letterpaper]{article}
+\usepackage{aaai}
+\usepackage{times}
+\usepackage{helvet}
+\usepackage{courier}
+\usepackage{amsmath,amsfonts,amssymb,bm}
+\usepackage{varwidth}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage{booktabs} 
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{tikz}
+\usetikzlibrary{bayesnet}
+
+\frenchspacing	
+\setlength{\pdfpagewidth}{8.5in}
+\setlength{\pdfpageheight}{11in}
+
+\newcommand\citeA[1]{\citeauthor{#1} (\citeyear{#1})}
+  
+\newcommand\comment[1]{%
+  \colorbox{yellow}{\begin{varwidth}{\dimexpr\linewidth-2\fboxsep}#1\end{varwidth}}}
+  
+%\pdfinfo{
+%/Title (Insert Your Title Here)
+%/Author (Put All Your Authors Here, Separated by Commas)}
+\setcounter{secnumdepth}{0}  
+ \begin{document}
+% The file aaai.sty is the style file for AAAI Press 
+% proceedings, working notes, and technical reports.
+%
+
+\title{Towards Generating A Society of Virtual Agents With Believable Emotions}
+\author{Sasha Azad\\
+    Principles of Expressive Machines (POEM) Lab \\ 
+    Department of Computer Science, North Carolina State University\\
+	sasha.azad@ncsu.edu\\
+}
+\maketitle
+
+\begin{abstract}
+Non-player characters (NPCs) often play a key role in interactive experiences. Traditional research literature attempts to use procedural content generation to model NPCs with individual behaviours that are used to validate the NPC's decisions, creating social networks and interactions over their virtual lives. A Drama Manager is generally used to assign emotions to the virtual characters based on the type of the event they partake in. In this proposal, we aim to present a procedural generation approach that can generate a small population of non-player characters that initially conform to the beliefs and opinions derived from their families. Over time the agents construct self opinions derived from their societal interactions. We attempt to model the emotional rationality associated with the agent forced to change their opinions by the group interactions.
+\end{abstract}
+ 
+\section{Introduction}
+
+Traditional video games, treat NPCs as individual characters, with every character born with a random set of abilities, and personalities that dictate their choices through their virtual lives. Predefined emotions are ascribed to the agent based on the type of interaction it takes part in. For instance, losing a job could cause the agent to feel anger at their co-workers, romantic relationships impute a feeling of love, hope or joy towards one's loved one. Current research has approached the generation of these characters using such individual traits \cite{mateas2003faccade,young2004architecture,swartout2006toward}, little work has been done in the narrative intelligence to understand how generated NPCs respond to group or societal archetypes and opinions\cite{zyda2010designing,wang2014modeling}. 
+
+Recent efforts have pushed past the entertainment industry, using simulated NPCs to train Human-AI interaction in medical science\cite{bartoli2012emergency}, leadership training\cite{riedl2006believable,swartout2006toward}, military training\cite{banta2004virtual}, education\cite{vanlehn1996conceptual} and more. Most recently, OpenAI’s machine-learning playground, Universe, allows autonomous car companies like Google to train their AI driving agents using open world simulations such as Grand Theft Auto (GTA)\cite{openai_2017}. Such open world simulations are preferred by various research groups because it gives them a realistic, detailed world to test their algorithms and training models. Amongst other simulations, GTA gives the researchers access to over 1000 unpredictable pedestrians and animals that the autonomous algorithms take into account while navigating through the space\cite{openai_2017,selfdrivinggta_2016}. 
+
+This move, using NPCs \textit{beyond games} to affect training of real world applications, in both civilian and military environments, means that it is now more important than ever to understand the behavioural complexities of NPCs when interacting with one another in large societies or communities. We posit that modeling NPC behaviours to account for both nature and nurture, would yield what we term as \textit{``culturally rich NPCs''} that can be utilized for a large variety of purposes. 
+% This project also matches the theme (art, stories, and music) because it illustrates “a possible background story “for an NPC or a society.
+Prior work by this author has dealt with dynamic opinion modeling for a simulation of a society of NPCs with individual opinions that are derived from the NPC's parents, or society through multiple discussions of the subject. This work attempts to ascribe emotional responses to the change in these opinions. 
+
+\section{Background} 
+Social simulation is achieved through a collection of NPCs that are reactive and appear intelligent, and motivated\cite{riedl2006believable,mateas2003faccade}. A number of studies consider some social aspects in NPCs. \citeauthor{verhagen2013social} hypothesizes how an NPC can be believable and lifelike. \citeauthor{afonso2008agents} constructs social relationships between NPCs to enrich their social behaviors. \citeauthor{guimaraes2017prom} constructs a social architecture model for NPCs. Most of them investigate the relation of a NPC and its society in short timespan. However, little research explores the interaction between NPCs and their cultural history, or how predesigned societal norms would affect the behaviour of generated NPCs. 
+
+Group formation has been studied in depth by social scientists, historians, commissions and psychologists. However, within the entertainment and narrative field, generated NPCs do not conform to studied theories, instead acting on individual preferences. However, this is not true for the real world. Simply reading a news article on the Internet allows one to gain a perspective of groups being made or unmade to support various issues. In one article, an author may describe how the \textit{Scottish} voted to remain in the recent Brexit vote\cite{brooks2016scottish}, in another we hear of \textit{Whovians} that approve or condone representation of women in Doctor Who\cite{jowett2014girls}. Yet another describes how protesters to a particular political argument could be considered \textit{anti-American}. \citeauthor{latour2005reassembling} discusses how individuals relating to one group or another is an ongoing process made up of uncertain, fragile, controversial and ever-shifting ties\cite{latour2005reassembling}. 
+
+Simulation methods such as that of \citeauthor{wang2014modeling} define how agents could change their opinions based on being surrounded by other agents. However, these methods fail to model the complex relationships between these agents that could lead to these changes{gratch2004domain}, instead assuming a cellular automata approach to opinion dynamics\cite{wang2014modeling,hegselmann2002opinion}. In contrast, traditional narrative intelligence deals with individual preferences leading to interesting interactions between characters \cite{riedl2006believable}.
+
+We posit that virtual characters, that are able to interact with one another, while allowing said interaction to affect their reasoning and knowledge of the world could be have an large impact in modeling the believability of these characters in open world narratives and games.
+
+\section{Proposed Approach} 
+
+The modeling of such rich cultural groups of NPCs with similar or shifting opinions, or history could inform the study of audience modeling and machine enculturation, allowing computers to learn about human values or social norms. 
+
+With this project we attempt to model the emotional nuances of the NPCs as they respond to events and changes in their environment. To do this we will first undertake a literature survey, contrasting various computational emotional frameworks with one another for their advantages and shortcoming. Once a framework has been selected, we hope to be able to create a short simulation of the emotions and mood associated with various agents as they undertake choices in the simulated world and interact with one another. 
+
+One such emotional framework model under consideration is the EMA model \cite{gratch2004domain}. The EMA model uses Appraisal Theory to model emotional responses of NPCs to their environment, appraising occuring events, and represent an NPC's individual preferences over outcomes. However, experiments on the model fail to deal with multiagent interaction scenarios, where agents may have conflicting goals and intentions. This proposal intends to study how existing frameworks, such as the EMA model discussed above, deal with more complex social interaction simulation. 
+
+Prior work by this author has dealt with dynamic opinion modeling for a simulation of a society of NPCs with individual opinions that are derived from the NPC's parents, or society through multiple discussions and conversations on various subjects. This work builds on the same, and attempts to ascribe emotional responses to the change in these opinions as well as with simple interactions and events in the agent's life. Finally, we hope to be able to model the concept of a mood for the agent, based on the outcome several events that may occur in which the agent participates. 
+
+{
+\fontsize{9.5pt}{10.5pt} \selectfont
+\bibliographystyle{aaai}
+\bibliography{paper}
+}
+
+\end{document}

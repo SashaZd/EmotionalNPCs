@@ -1,0 +1,130 @@
+\begin{thebibliography}{}
+
+\bibitem[\protect\citeauthoryear{Afonso and Prada}{2008}]{afonso2008agents}
+Afonso, N., and Prada, R.
+\newblock 2008.
+\newblock Agents that relate: Improving the social believability of non-player
+  characters in role-playing games.
+\newblock In {\em International Conference on Entertainment Computing},
+  34--45.
+\newblock Springer.
+
+\bibitem[\protect\citeauthoryear{Banta \bgroup et al\mbox.\egroup
+  }{2004}]{banta2004virtual}
+Banta, H.~G.; Troillet, D.~B.; Heffernan, N.~T.; Plamondon, B.; and Beal, S.~A.
+\newblock 2004.
+\newblock The virtual observer/controller (voc): Automated intelligent coaching
+  in dismounted warrior simulations.
+\newblock Technical report, SONALYSTS INC WATERFORD CT.
+
+\bibitem[\protect\citeauthoryear{Bartoli \bgroup et al\mbox.\egroup
+  }{2012}]{bartoli2012emergency}
+Bartoli, G.; Del~Bimbo, A.; Faconti, M.; Ferracani, A.; Marini, V.; Pezzatini,
+  D.; Seidenari, L.; and Zilleruelo, F.
+\newblock 2012.
+\newblock Emergency medicine training with gesture driven interactive 3d
+  simulations.
+\newblock In {\em Proceedings of the 2012 ACM workshop on User experience in
+  e-learning and augmented technologies in education},  25--30.
+\newblock ACM.
+
+\bibitem[\protect\citeauthoryear{Brooks}{2016}]{brooks2016scottish}
+Brooks, L.
+\newblock 2016.
+\newblock Scottish brexit voters pose quandary for independence campaign,„.
+\newblock {\em The Guardian} 7.
+
+\bibitem[\protect\citeauthoryear{Gratch and Marsella}{2004}]{gratch2004domain}
+Gratch, J., and Marsella, S.
+\newblock 2004.
+\newblock A domain-independent framework for modeling emotion.
+\newblock {\em Cognitive Systems Research} 5(4):269--306.
+
+\bibitem[\protect\citeauthoryear{Guimar{\~a}es, Santos, and
+  Jhala}{2017}]{guimaraes2017prom}
+Guimar{\~a}es, M.; Santos, P.; and Jhala, A.
+\newblock 2017.
+\newblock Prom week meets skyrim: Developing a social agent architecture in a
+  commercial game.
+\newblock In {\em Proceedings of the 16th Conference on Autonomous Agents and
+  MultiAgent Systems},  1562--1564.
+\newblock International Foundation for Autonomous Agents and Multiagent
+  Systems.
+
+\bibitem[\protect\citeauthoryear{Hegselmann, Krause, and
+  others}{2002}]{hegselmann2002opinion}
+Hegselmann, R.; Krause, U.; et~al.
+\newblock 2002.
+\newblock Opinion dynamics and bounded confidence models, analysis, and
+  simulation.
+\newblock {\em Journal of artificial societies and social simulation} 5(3).
+
+\bibitem[\protect\citeauthoryear{Jowett}{2014}]{jowett2014girls}
+Jowett, L.
+\newblock 2014.
+\newblock The girls who waited? female companions and gender in doctor who.
+\newblock {\em Critical Studies in Television} 9(1):77--94.
+
+\bibitem[\protect\citeauthoryear{Latour}{2005}]{latour2005reassembling}
+Latour, B.
+\newblock 2005.
+\newblock {\em Reassembling the social: An introduction to
+  actor-network-theory}.
+\newblock Oxford university press.
+
+\bibitem[\protect\citeauthoryear{Mateas and Stern}{2003}]{mateas2003faccade}
+Mateas, M., and Stern, A.
+\newblock 2003.
+\newblock Fa{\c{c}}ade: An experiment in building a fully-realized interactive
+  drama.
+\newblock In {\em Game developers conference}, volume~2.
+
+\bibitem[\protect\citeauthoryear{OpenAI}{2017}]{openai_2017}
+OpenAI.
+\newblock 2017.
+\newblock Universe.
+
+\bibitem[\protect\citeauthoryear{Review}{2016}]{selfdrivinggta_2016}
+Review, M.~T.
+\newblock 2016.
+\newblock Self driving cars can learn a lot by playing grand theft auto.
+
+\bibitem[\protect\citeauthoryear{Riedl and Stern}{2006}]{riedl2006believable}
+Riedl, M.~O., and Stern, A.
+\newblock 2006.
+\newblock Believable agents and intelligent scenario direction for social and
+  cultural leadership training.
+\newblock In {\em Proceedings of the 15th Conference on Behavior Representation
+  in Modeling and Simulation}.
+
+\bibitem[\protect\citeauthoryear{VanLehn}{1996}]{vanlehn1996conceptual}
+VanLehn, K.
+\newblock 1996.
+\newblock Conceptual and meta learning during coached problem solving.
+\newblock In {\em Intelligent Tutoring Systems},  29--47.
+\newblock Springer.
+
+\bibitem[\protect\citeauthoryear{Verhagen \bgroup et al\mbox.\egroup
+  }{2013}]{verhagen2013social}
+Verhagen, H.; Eladhari, M.~P.; Johansson, M.; and McCoy, J.
+\newblock 2013.
+\newblock Social believability in games.
+\newblock In {\em Advances in Computer Entertainment}. Springer.
+\newblock  649--652.
+
+\bibitem[\protect\citeauthoryear{Wang, Huang, and Sun}{2014}]{wang2014modeling}
+Wang, S.-W.; Huang, C.-Y.; and Sun, C.-T.
+\newblock 2014.
+\newblock Modeling self-perception agents in an opinion dynamics propagation
+  society.
+\newblock {\em Simulation} 90(3):238--248.
+
+\bibitem[\protect\citeauthoryear{Zyda \bgroup et al\mbox.\egroup
+  }{2010}]{zyda2010designing}
+Zyda, M.; Spraragen, M.; Ranganathan, B.; Arnason, B.; and Landwehr, P.~M.
+\newblock 2010.
+\newblock Designing a massively multiplayer online game/research testbed
+  featuring ai-driven npc communities.
+\newblock In {\em AIIDE}.
+
+\end{thebibliography}
